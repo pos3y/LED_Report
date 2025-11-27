@@ -12,12 +12,10 @@
         body { font-family: 'Sarabun', sans-serif; background-color: #f3f4f6; }
         .tab-btn.active { background-color: #065f46; color: white; border-color: #065f46; }
         .hidden { display: none !important; }
-        
-        /* Location Tab Styles */
         .loc-tab-btn { border-bottom: 2px solid transparent; color: #9ca3af; }
         .loc-tab-btn.active-loc { border-bottom: 2px solid #059669; color: #059669; font-weight: bold; }
-        
         #loading { position: fixed; inset: 0; background: white; z-index: 999; display: flex; justify-content: center; align-items: center; flex-direction: column; }
+        iframe { width: 100%; height: 100%; } /* For YouTube */
     </style>
 </head>
 <body>
@@ -56,7 +54,6 @@
             </div>
 
             <div class="animate-fade-in">
-                
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                     <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-gray-800">
                         <div class="text-gray-400 text-xs uppercase font-bold">Slot ID</div>
@@ -77,7 +74,6 @@
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    
                     <div class="bg-white p-4 rounded-xl shadow-sm">
                         <div class="flex justify-between items-center mb-3">
                             <h3 class="font-bold text-gray-700"><i class="fa-solid fa-play-circle text-emerald-600 mr-2"></i>Media Preview</h3>
@@ -86,7 +82,9 @@
                             <video id="main-video" class="w-full h-full object-contain hidden" controls autoplay muted loop playsinline>
                                 <source src="" type="video/mp4">
                             </video>
+                            <iframe id="youtube-frame" class="hidden" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
                             <img id="main-image" class="w-full h-full object-contain hidden" src="">
+                            
                             <div id="media-loader" class="absolute inset-0 flex items-center justify-center bg-gray-900 text-white flex-col hidden">
                                 <i class="fa-solid fa-circle-notch fa-spin text-2xl"></i>
                             </div>
@@ -95,7 +93,6 @@
                     </div>
 
                     <div class="bg-white p-4 rounded-xl shadow-sm flex flex-col">
-                        
                         <div class="flex border-b border-gray-100 mb-4">
                             <button id="btn-show-map" onclick="switchLocationView('map')" class="loc-tab-btn flex-1 py-2 text-sm transition text-center hover:text-emerald-500">
                                 <i class="fa-solid fa-map mr-2"></i>Store Map (ผังร้าน)
@@ -104,16 +101,13 @@
                                 <i class="fa-solid fa-camera mr-2"></i>Shelf Photo (รูปเชลฟ์)
                             </button>
                         </div>
-
                         <div class="relative bg-gray-100 rounded-lg overflow-hidden flex-1 min-h-[300px]">
-                            <img id="location-display-img" src="" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/600x400?text=Image+Load+Error'">
-                            
+                            <img id="location-display-img" src="" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/600x400?text=No+Image'">
                             <div class="absolute bottom-4 right-4 bg-black/70 text-white text-xs px-3 py-1 rounded-full backdrop-blur-sm">
                                 <span id="location-type-label">Store Map</span>
                             </div>
                         </div>
                     </div>
-
                 </div>
             </div>
         </div>
@@ -121,7 +115,7 @@
 
     <script>
         // ==========================================
-        //  ใส่ Link CSV ที่ Publish เป็น .csv แล้วที่นี่
+        //  CSV Link (อันเดิมของคุณ)
         // ==========================================
         const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRPt5_VqUQSurUF8zod1Ns67QBSMvPhFwpuwvniE8wzX3dDOrXyxClrDywMwMnkaJ-Ite1M3DlLeTZt/pub?output=csv"; 
         // ==========================================
@@ -130,26 +124,46 @@
         let currentSlots = [];
         let currentSlotData = null; 
 
-        // Helper: Convert Google Drive Link (More Robust)
-        function convertDriveLink(url) {
-            if (!url) return "";
-            url = url.trim();
-            // เช็คว่ามี /d/ หรือไม่
-            if (url.includes("drive.google.com") && url.includes("/d/")) {
-                // พยายามดึง ID ออกมาไม่ว่า URL จะยาวแค่ไหน
-                const idMatch = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
-                if (idMatch && idMatch[1]) {
-                    return `https://drive.google.com/uc?export=view&id=${idMatch[1]}`;
-                }
-            }
-            return url;
-        }
-
-        // Helper: Clean Number (Fix NaN issue)
+        // 1. ระบบแก้ตัวเลข NaN (ตัดลูกน้ำออก)
         function cleanNumber(val) {
             if (!val) return 0;
-            // ลบลูกน้ำ (,) และช่องว่างออกให้หมดก่อนแปลงเป็นตัวเลข
-            return Number(String(val).replace(/,/g, '').trim());
+            // ลบ , และช่องว่าง แล้วแปลงเป็นตัวเลข
+            const clean = String(val).replace(/,/g, '').trim();
+            const num = Number(clean);
+            return isNaN(num) ? 0 : num;
+        }
+
+        // 2. ระบบแปลงลิงก์ (Drive & YouTube)
+        function processMediaLink(url) {
+            if (!url) return { type: 'none', url: '' };
+            url = url.trim();
+
+            // Case A: Google Drive
+            if (url.includes("drive.google.com") && url.includes("/d/")) {
+                const idMatch = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+                if (idMatch && idMatch[1]) {
+                    return { type: 'drive', url: `https://drive.google.com/uc?export=view&id=${idMatch[1]}` };
+                }
+            }
+            
+            // Case B: YouTube (Watch or Short)
+            if (url.includes("youtube.com") || url.includes("youtu.be")) {
+                let videoId = "";
+                if (url.includes("v=")) {
+                    videoId = url.split("v=")[1].split("&")[0];
+                } else if (url.includes("youtu.be/")) {
+                    videoId = url.split("youtu.be/")[1].split("?")[0];
+                }
+                if (videoId) {
+                    return { type: 'youtube', url: `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}` };
+                }
+            }
+
+            // Case C: Direct File (mp4, jpg)
+            if (url.match(/\.(mp4|webm|mov)$/i)) return { type: 'video', url: url };
+            
+            // Default: Treat as Image
+            return { type: 'image', url: url };
         }
 
         window.onload = function() {
@@ -170,16 +184,14 @@
 
                     if (filtered.length === 0) { showError("No data found for brand: " + brandID); return; }
 
-                    // Set Header Logo
                     if (filtered[0].Brand_Logo_URL) {
-                        const logoUrl = convertDriveLink(filtered[0].Brand_Logo_URL);
+                        const logoMedia = processMediaLink(filtered[0].Brand_Logo_URL);
                         const logoImg = document.getElementById('header-logo');
                         document.getElementById('header-icon').classList.add('hidden');
-                        logoImg.src = logoUrl;
+                        logoImg.src = logoMedia.url;
                         logoImg.classList.remove('hidden');
                     }
 
-                    // Group by Month
                     currentBrandData = filtered.reduce((acc, row) => {
                         const month = row.Month.trim();
                         if (!acc[month]) acc[month] = [];
@@ -196,11 +208,9 @@
         function initSystem() {
             document.getElementById('loading').classList.add('hidden');
             document.getElementById('main-content').classList.remove('hidden');
-
             const selector = document.getElementById('monthSelector');
             const months = Object.keys(currentBrandData);
             if(months.length === 0) return;
-
             months.forEach(m => {
                 const opt = document.createElement('option');
                 opt.value = m;
@@ -231,44 +241,52 @@
         }
 
         function loadSlot(index) {
-            currentSlotData = currentSlots[index]; 
-            
-            // 1. Highlight Slot Tabs
+            currentSlotData = currentSlots[index];
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById(`tab-${index}`).classList.add('active');
 
-            // 2. Metrics (ใช้ cleanNumber แก้ปัญหา NaN)
+            // Metrics Update (ใช้ cleanNumber แก้ NaN)
             document.getElementById('val-slot').innerText = currentSlotData.Slot_ID;
             document.getElementById('val-imp').innerText = cleanNumber(currentSlotData.Impression).toLocaleString();
             document.getElementById('val-hr').innerText = currentSlotData.Hours || '-';
             document.getElementById('val-dur').innerText = currentSlotData.Media_Duration || '-';
 
-            // 3. Media Player (Left Side)
+            // Media Player Logic
             const vdo = document.getElementById('main-video');
+            const yt = document.getElementById('youtube-frame');
             const img = document.getElementById('main-image');
-            const mediaUrl = convertDriveLink(currentSlotData.Media_Source_URL);
+            const srcText = document.getElementById('media-source-text');
             
-            vdo.classList.add('hidden'); img.classList.add('hidden');
-            document.getElementById('media-source-text').innerText = "Source: " + (currentSlotData.Media_Source_URL || "-");
+            // Reset
+            vdo.classList.add('hidden'); vdo.pause();
+            yt.classList.add('hidden'); yt.src = "";
+            img.classList.add('hidden');
 
-            if(mediaUrl) {
-                vdo.src = mediaUrl;
+            const mediaData = processMediaLink(currentSlotData.Media_Source_URL);
+            srcText.innerText = "Source: " + (currentSlotData.Media_Source_URL ? "Loaded" : "None");
+
+            if (mediaData.type === 'youtube') {
+                yt.src = mediaData.url;
+                yt.classList.remove('hidden');
+            } else if (mediaData.type === 'video' || mediaData.type === 'drive') {
+                // สมมติว่าเป็น Video ไว้ก่อนสำหรับ Drive (ถ้าเป็นรูปเดี๋ยว onerror จะทำงาน)
+                vdo.src = mediaData.url;
                 vdo.classList.remove('hidden');
-                // Fallback to image if video fails
                 vdo.onerror = () => {
                     vdo.classList.add('hidden');
-                    img.src = mediaUrl;
+                    img.src = mediaData.url;
                     img.classList.remove('hidden');
                 };
+            } else {
+                img.src = mediaData.url;
+                img.classList.remove('hidden');
             }
 
-            // 4. Location Display (Right Side) - Default to Map
             switchLocationView('map');
         }
 
         function switchLocationView(viewType) {
             if(!currentSlotData) return;
-
             const imgDisplay = document.getElementById('location-display-img');
             const labelDisplay = document.getElementById('location-type-label');
             const btnMap = document.getElementById('btn-show-map');
@@ -277,18 +295,19 @@
             btnMap.classList.remove('active-loc');
             btnShelf.classList.remove('active-loc');
 
+            let url = "";
             if(viewType === 'map') {
                 btnMap.classList.add('active-loc');
-                const mapUrl = convertDriveLink(currentSlotData.Store_Map_URL);
-                // ถ้าลิงก์ว่าง ให้ใส่รูป Placeholder
-                imgDisplay.src = mapUrl || "https://placehold.co/600x400?text=No+Map+Available";
+                url = currentSlotData.Store_Map_URL;
                 labelDisplay.innerText = "Store Map (ผังร้าน)";
             } else {
                 btnShelf.classList.add('active-loc');
-                const shelfUrl = convertDriveLink(currentSlotData.Shelf_Photo_URL);
-                imgDisplay.src = shelfUrl || "https://placehold.co/600x400?text=No+Shelf+Photo";
+                url = currentSlotData.Shelf_Photo_URL;
                 labelDisplay.innerText = "Shelf Photo (รูปเชลฟ์)";
             }
+            
+            const mediaData = processMediaLink(url);
+            imgDisplay.src = mediaData.url || "https://placehold.co/600x400?text=No+Image";
         }
 
         function showError(msg) {
