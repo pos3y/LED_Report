@@ -31,7 +31,7 @@
         <div class="container mx-auto px-4 py-4 flex justify-between items-center">
             <div class="flex items-center gap-4">
                 <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden border border-gray-200">
-                    <img id="header-logo" class="w-full h-full object-contain hidden"> 
+                    <img id="header-logo" class="w-full h-full object-contain hidden" onerror="this.style.display='none'"> 
                     <i id="header-icon" class="fa-solid fa-chart-simple text-emerald-800 text-xl"></i>
                 </div>
                 <div>
@@ -106,7 +106,7 @@
                         </div>
 
                         <div class="relative bg-gray-100 rounded-lg overflow-hidden flex-1 min-h-[300px]">
-                            <img id="location-display-img" src="" class="w-full h-full object-cover">
+                            <img id="location-display-img" src="" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/600x400?text=Image+Load+Error'">
                             
                             <div class="absolute bottom-4 right-4 bg-black/70 text-white text-xs px-3 py-1 rounded-full backdrop-blur-sm">
                                 <span id="location-type-label">Store Map</span>
@@ -121,7 +121,7 @@
 
     <script>
         // ==========================================
-        //  LINK CSV ของคุณ (อัปเดตแล้ว)
+        //  ใส่ Link CSV ที่ Publish เป็น .csv แล้วที่นี่
         // ==========================================
         const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRPt5_VqUQSurUF8zod1Ns67QBSMvPhFwpuwvniE8wzX3dDOrXyxClrDywMwMnkaJ-Ite1M3DlLeTZt/pub?output=csv"; 
         // ==========================================
@@ -130,17 +130,26 @@
         let currentSlots = [];
         let currentSlotData = null; 
 
-        // Helper: Convert Google Drive Link
+        // Helper: Convert Google Drive Link (More Robust)
         function convertDriveLink(url) {
             if (!url) return "";
             url = url.trim();
+            // เช็คว่ามี /d/ หรือไม่
             if (url.includes("drive.google.com") && url.includes("/d/")) {
+                // พยายามดึง ID ออกมาไม่ว่า URL จะยาวแค่ไหน
                 const idMatch = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
                 if (idMatch && idMatch[1]) {
                     return `https://drive.google.com/uc?export=view&id=${idMatch[1]}`;
                 }
             }
             return url;
+        }
+
+        // Helper: Clean Number (Fix NaN issue)
+        function cleanNumber(val) {
+            if (!val) return 0;
+            // ลบลูกน้ำ (,) และช่องว่างออกให้หมดก่อนแปลงเป็นตัวเลข
+            return Number(String(val).replace(/,/g, '').trim());
         }
 
         window.onload = function() {
@@ -228,11 +237,10 @@
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById(`tab-${index}`).classList.add('active');
 
-            // 2. Metrics
+            // 2. Metrics (ใช้ cleanNumber แก้ปัญหา NaN)
             document.getElementById('val-slot').innerText = currentSlotData.Slot_ID;
-            document.getElementById('val-imp').innerText = Number(currentSlotData.Impression || 0).toLocaleString();
+            document.getElementById('val-imp').innerText = cleanNumber(currentSlotData.Impression).toLocaleString();
             document.getElementById('val-hr').innerText = currentSlotData.Hours || '-';
-            // New Metric: Duration
             document.getElementById('val-dur').innerText = currentSlotData.Media_Duration || '-';
 
             // 3. Media Player (Left Side)
@@ -272,6 +280,7 @@
             if(viewType === 'map') {
                 btnMap.classList.add('active-loc');
                 const mapUrl = convertDriveLink(currentSlotData.Store_Map_URL);
+                // ถ้าลิงก์ว่าง ให้ใส่รูป Placeholder
                 imgDisplay.src = mapUrl || "https://placehold.co/600x400?text=No+Map+Available";
                 labelDisplay.innerText = "Store Map (ผังร้าน)";
             } else {
