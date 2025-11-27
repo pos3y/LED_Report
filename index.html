@@ -3,17 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Campaign Report System</title>
+    <title>Campaign Performance Report</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
     <style>
         body { font-family: 'Sarabun', sans-serif; background-color: #f3f4f6; }
         .tab-btn.active { background-color: #065f46; color: white; border-color: #065f46; }
         .hidden { display: none !important; }
         #loading { position: fixed; inset: 0; background: white; z-index: 999; display: flex; justify-content: center; align-items: center; flex-direction: column; }
         iframe { width: 100%; height: 100%; }
+
+        /* --- PRINT STYLES (สำหรับ Save PDF) --- */
+        @media print {
+            button, select, .no-print, #loading, #error-msg, .tab-btn:not(.active) { display: none !important; }
+            .bg-gray-50 { border: none !important; background: none !important; }
+            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; background-color: white !important; }
+            @page { size: landscape; margin: 0.5cm; }
+            .container { max-width: 100% !important; width: 100% !important; padding: 0 !important; }
+            /* ซ่อนเงาและขอบตอนปริ้น */
+            .shadow-sm, .shadow-lg { box-shadow: none !important; border: 1px solid #ddd !important; }
+        }
     </style>
 </head>
 <body>
@@ -35,9 +48,15 @@
                     <p class="text-sm text-gray-500">Monthly Performance Report</p>
                 </div>
             </div>
-            <div class="flex items-center gap-2 bg-gray-50 border border-gray-200 px-3 py-2 rounded-lg">
-                <i class="fa-solid fa-calendar-days text-emerald-600"></i>
-                <select id="monthSelector" class="bg-transparent font-bold text-gray-700 outline-none cursor-pointer" onchange="changeMonth()"></select>
+            
+            <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 bg-gray-50 border border-gray-200 px-3 py-2 rounded-lg">
+                    <i class="fa-solid fa-calendar-days text-emerald-600"></i>
+                    <select id="monthSelector" class="bg-transparent font-bold text-gray-700 outline-none cursor-pointer" onchange="changeMonth()"></select>
+                </div>
+                <button onclick="window.print()" class="ml-2 bg-emerald-600 hover:bg-emerald-500 text-white w-10 h-10 flex items-center justify-center rounded-lg transition shadow-sm" title="Print / Save PDF">
+                    <i class="fa-solid fa-print"></i>
+                </button>
             </div>
         </div>
     </header>
@@ -79,11 +98,10 @@
                             <h3 class="font-bold text-gray-700"><i class="fa-solid fa-play-circle text-emerald-600 mr-2"></i>Media Preview (สื่อโฆษณา)</h3>
                         </div>
                         <div class="aspect-video bg-black rounded-lg overflow-hidden flex items-center justify-center relative group">
-                            <video id="main-video" class="w-full h-full object-contain hidden" controls autoplay muted loop playsinline>
-                                <source src="" type="video/mp4">
-                            </video>
+                            <video id="main-video" class="w-full h-full object-contain hidden" controls autoplay muted loop playsinline><source src="" type="video/mp4"></video>
                             <iframe id="youtube-frame" class="hidden" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
                             <img id="main-image" class="w-full h-full object-contain hidden" src="">
+                            
                             <div id="media-loader" class="absolute inset-0 flex items-center justify-center bg-gray-900 text-white flex-col hidden">
                                 <i class="fa-solid fa-circle-notch fa-spin text-2xl"></i>
                             </div>
@@ -102,17 +120,16 @@
                             </div>
                         </div>
                     </div>
-
                 </div>
 
-                <div class="bg-white p-6 rounded-xl shadow-sm">
+                <div class="bg-white p-6 rounded-xl shadow-sm break-inside-avoid">
                     <div class="flex items-center gap-2 mb-4 border-b border-gray-100 pb-2">
                         <i class="fa-solid fa-map-location-dot text-emerald-600 text-xl"></i>
                         <h3 class="font-bold text-gray-700 text-lg">Store Map Overview (ผังร้านค้า)</h3>
                     </div>
                     
-                    <div class="w-full bg-gray-50 rounded-lg overflow-hidden border border-gray-100">
-                        <img id="map-display-img" src="" class="w-full h-auto object-contain max-h-[500px]" onerror="this.src='https://placehold.co/1000x400?text=No+Store+Map+Available'">
+                    <div class="w-full bg-gray-50 rounded-lg overflow-hidden border border-gray-100 flex justify-center">
+                        <img id="map-display-img" src="" class="w-full h-auto object-contain max-h-[600px]" onerror="this.src='https://placehold.co/1000x400?text=No+Store+Map+Available'">
                     </div>
                 </div>
 
@@ -122,7 +139,7 @@
 
     <script>
         // ==========================================
-        //  CSV Link (อันเดิม)
+        //  ใส่ลิงก์ Google Sheets CSV ของคุณที่นี่
         // ==========================================
         const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRPt5_VqUQSurUF8zod1Ns67QBSMvPhFwpuwvniE8wzX3dDOrXyxClrDywMwMnkaJ-Ite1M3DlLeTZt/pub?output=csv"; 
         // ==========================================
@@ -131,6 +148,7 @@
         let currentSlots = [];
         let currentSlotData = null; 
 
+        // Fix NaN Function
         function cleanNumber(val) {
             if (!val) return 0;
             const clean = String(val).replace(/,/g, '').trim();
@@ -138,20 +156,26 @@
             return isNaN(num) ? 0 : num;
         }
 
+        // Smart Media Link Processor
         function processMediaLink(url) {
             if (!url) return { type: 'none', url: '' };
             url = url.trim();
+            
+            // Google Drive
             if (url.includes("drive.google.com") && url.includes("/d/")) {
                 const idMatch = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
                 if (idMatch && idMatch[1]) return { type: 'drive', url: `https://drive.google.com/uc?export=view&id=${idMatch[1]}` };
             }
+            // YouTube
             if (url.includes("youtube.com") || url.includes("youtu.be")) {
                 let videoId = "";
                 if (url.includes("v=")) videoId = url.split("v=")[1].split("&")[0];
                 else if (url.includes("youtu.be/")) videoId = url.split("youtu.be/")[1].split("?")[0];
                 if (videoId) return { type: 'youtube', url: `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}` };
             }
+            // Direct Video
             if (url.match(/\.(mp4|webm|mov)$/i)) return { type: 'video', url: url };
+            
             return { type: 'image', url: url };
         }
 
