@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campaign Report System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Sarabun', sans-serif; background-color: #f3f4f6; }
+        .tab-btn.active { background-color: #065f46; color: white; border-color: #065f46; }
+        .hidden { display: none !important; }
+        
+        /* Location Tab Styles */
+        .loc-tab-btn { border-bottom: 2px solid transparent; color: #9ca3af; }
+        .loc-tab-btn.active-loc { border-bottom: 2px solid #059669; color: #059669; font-weight: bold; }
+        
+        #loading { position: fixed; inset: 0; background: white; z-index: 999; display: flex; justify-content: center; align-items: center; flex-direction: column; }
+    </style>
+</head>
+<body>
+
+    <div id="loading">
+        <i class="fa-solid fa-circle-notch fa-spin text-4xl text-emerald-600 mb-4"></i>
+        <p class="text-gray-500">Connecting to Database...</p>
+    </div>
+
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden border border-gray-200">
+                    <img id="header-logo" class="w-full h-full object-contain hidden"> 
+                    <i id="header-icon" class="fa-solid fa-chart-simple text-emerald-800 text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-gray-800 tracking-tight uppercase" id="brand-title">...</h1>
+                    <p class="text-sm text-gray-500">Monthly Performance Report</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 bg-gray-50 border border-gray-200 px-3 py-2 rounded-lg">
+                <i class="fa-solid fa-calendar-days text-emerald-600"></i>
+                <select id="monthSelector" class="bg-transparent font-bold text-gray-700 outline-none cursor-pointer" onchange="changeMonth()"></select>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8 max-w-6xl">
+        <div id="error-msg" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4"></div>
+
+        <div id="main-content" class="hidden">
+            <div class="mb-8">
+                <h2 class="text-gray-500 text-sm mb-3 font-semibold uppercase tracking-wider">Select Slot</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="tab-container"></div>
+            </div>
+
+            <div class="animate-fade-in">
+                
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-gray-800">
+                        <div class="text-gray-400 text-xs uppercase font-bold">Slot ID</div>
+                        <div class="text-2xl font-bold text-gray-800 mt-1" id="val-slot">--</div>
+                    </div>
+                    <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-emerald-500">
+                        <div class="text-gray-400 text-xs uppercase font-bold">Impression</div>
+                        <div class="text-2xl font-bold text-emerald-600 mt-1" id="val-imp">--</div>
+                    </div>
+                    <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-blue-400">
+                        <div class="text-gray-400 text-xs uppercase font-bold">Total Hours</div>
+                        <div class="text-2xl font-bold text-gray-800 mt-1" id="val-hr">--</div>
+                    </div>
+                    <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-indigo-500">
+                        <div class="text-gray-400 text-xs uppercase font-bold">Media Time</div>
+                        <div class="text-2xl font-bold text-gray-800 mt-1" id="val-dur">--</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    
+                    <div class="bg-white p-4 rounded-xl shadow-sm">
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="font-bold text-gray-700"><i class="fa-solid fa-play-circle text-emerald-600 mr-2"></i>Media Preview</h3>
+                        </div>
+                        <div class="aspect-video bg-black rounded-lg overflow-hidden flex items-center justify-center relative group">
+                            <video id="main-video" class="w-full h-full object-contain hidden" controls autoplay muted loop playsinline>
+                                <source src="" type="video/mp4">
+                            </video>
+                            <img id="main-image" class="w-full h-full object-contain hidden" src="">
+                            <div id="media-loader" class="absolute inset-0 flex items-center justify-center bg-gray-900 text-white flex-col hidden">
+                                <i class="fa-solid fa-circle-notch fa-spin text-2xl"></i>
+                            </div>
+                        </div>
+                        <div class="mt-2 text-xs text-gray-400 text-center truncate" id="media-source-text"></div>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-xl shadow-sm flex flex-col">
+                        
+                        <div class="flex border-b border-gray-100 mb-4">
+                            <button id="btn-show-map" onclick="switchLocationView('map')" class="loc-tab-btn flex-1 py-2 text-sm transition text-center hover:text-emerald-500">
+                                <i class="fa-solid fa-map mr-2"></i>Store Map (ผังร้าน)
+                            </button>
+                            <button id="btn-show-shelf" onclick="switchLocationView('shelf')" class="loc-tab-btn flex-1 py-2 text-sm transition text-center hover:text-emerald-500">
+                                <i class="fa-solid fa-camera mr-2"></i>Shelf Photo (รูปเชลฟ์)
+                            </button>
+                        </div>
+
+                        <div class="relative bg-gray-100 rounded-lg overflow-hidden flex-1 min-h-[300px]">
+                            <img id="location-display-img" src="" class="w-full h-full object-cover">
+                            
+                            <div class="absolute bottom-4 right-4 bg-black/70 text-white text-xs px-3 py-1 rounded-full backdrop-blur-sm">
+                                <span id="location-type-label">Store Map</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // ==========================================
+        //  LINK CSV ของคุณ (อัปเดตแล้ว)
+        // ==========================================
+        const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRPt5_VqUQSurUF8zod1Ns67QBSMvPhFwpuwvniE8wzX3dDOrXyxClrDywMwMnkaJ-Ite1M3DlLeTZt/pub?output=csv"; 
+        // ==========================================
+
+        let currentBrandData = {};
+        let currentSlots = [];
+        let currentSlotData = null; 
+
+        // Helper: Convert Google Drive Link
+        function convertDriveLink(url) {
+            if (!url) return "";
+            url = url.trim();
+            if (url.includes("drive.google.com") && url.includes("/d/")) {
+                const idMatch = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+                if (idMatch && idMatch[1]) {
+                    return `https://drive.google.com/uc?export=view&id=${idMatch[1]}`;
+                }
+            }
+            return url;
+        }
+
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const brandID = urlParams.get('brand');
+            if (!brandID) { showError("Error: No Brand ID specified in URL (e.g., ?brand=terra)"); return; }
+
+            document.getElementById('brand-title').innerText = brandID;
+            fetchData(brandID);
+        };
+
+        function fetchData(brandID) {
+            Papa.parse(SHEET_CSV_URL, {
+                download: true, header: true, skipEmptyLines: true,
+                complete: function(results) {
+                    const rows = results.data;
+                    const filtered = rows.filter(row => row.Brand_ID && row.Brand_ID.toLowerCase().trim() === brandID.toLowerCase().trim());
+
+                    if (filtered.length === 0) { showError("No data found for brand: " + brandID); return; }
+
+                    // Set Header Logo
+                    if (filtered[0].Brand_Logo_URL) {
+                        const logoUrl = convertDriveLink(filtered[0].Brand_Logo_URL);
+                        const logoImg = document.getElementById('header-logo');
+                        document.getElementById('header-icon').classList.add('hidden');
+                        logoImg.src = logoUrl;
+                        logoImg.classList.remove('hidden');
+                    }
+
+                    // Group by Month
+                    currentBrandData = filtered.reduce((acc, row) => {
+                        const month = row.Month.trim();
+                        if (!acc[month]) acc[month] = [];
+                        acc[month].push(row);
+                        return acc;
+                    }, {});
+
+                    initSystem();
+                },
+                error: function() { showError("Connection Error: Cannot load Google Sheet."); }
+            });
+        }
+
+        function initSystem() {
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('main-content').classList.remove('hidden');
+
+            const selector = document.getElementById('monthSelector');
+            const months = Object.keys(currentBrandData);
+            if(months.length === 0) return;
+
+            months.forEach(m => {
+                const opt = document.createElement('option');
+                opt.value = m;
+                opt.innerText = m.toUpperCase();
+                selector.appendChild(opt);
+            });
+            changeMonth();
+        }
+
+        function changeMonth() {
+            const monthKey = document.getElementById('monthSelector').value;
+            currentSlots = currentBrandData[monthKey];
+            renderTabs();
+            loadSlot(0);
+        }
+
+        function renderTabs() {
+            const container = document.getElementById('tab-container');
+            container.innerHTML = '';
+            currentSlots.forEach((item, index) => {
+                const btn = document.createElement('button');
+                btn.className = `tab-btn p-4 rounded-xl border-2 border-gray-200 bg-white hover:border-emerald-400 transition text-left w-full`;
+                btn.onclick = () => loadSlot(index);
+                btn.id = `tab-${index}`;
+                btn.innerHTML = `<div class="font-bold text-lg">${item.Slot_ID}</div><div class="text-sm text-gray-400 mt-1">${item.Slot_Name || 'Display Slot'}</div>`;
+                container.appendChild(btn);
+            });
+        }
+
+        function loadSlot(index) {
+            currentSlotData = currentSlots[index]; 
+            
+            // 1. Highlight Slot Tabs
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`tab-${index}`).classList.add('active');
+
+            // 2. Metrics
+            document.getElementById('val-slot').innerText = currentSlotData.Slot_ID;
+            document.getElementById('val-imp').innerText = Number(currentSlotData.Impression || 0).toLocaleString();
+            document.getElementById('val-hr').innerText = currentSlotData.Hours || '-';
+            // New Metric: Duration
+            document.getElementById('val-dur').innerText = currentSlotData.Media_Duration || '-';
+
+            // 3. Media Player (Left Side)
+            const vdo = document.getElementById('main-video');
+            const img = document.getElementById('main-image');
+            const mediaUrl = convertDriveLink(currentSlotData.Media_Source_URL);
+            
+            vdo.classList.add('hidden'); img.classList.add('hidden');
+            document.getElementById('media-source-text').innerText = "Source: " + (currentSlotData.Media_Source_URL || "-");
+
+            if(mediaUrl) {
+                vdo.src = mediaUrl;
+                vdo.classList.remove('hidden');
+                // Fallback to image if video fails
+                vdo.onerror = () => {
+                    vdo.classList.add('hidden');
+                    img.src = mediaUrl;
+                    img.classList.remove('hidden');
+                };
+            }
+
+            // 4. Location Display (Right Side) - Default to Map
+            switchLocationView('map');
+        }
+
+        function switchLocationView(viewType) {
+            if(!currentSlotData) return;
+
+            const imgDisplay = document.getElementById('location-display-img');
+            const labelDisplay = document.getElementById('location-type-label');
+            const btnMap = document.getElementById('btn-show-map');
+            const btnShelf = document.getElementById('btn-show-shelf');
+
+            btnMap.classList.remove('active-loc');
+            btnShelf.classList.remove('active-loc');
+
+            if(viewType === 'map') {
+                btnMap.classList.add('active-loc');
+                const mapUrl = convertDriveLink(currentSlotData.Store_Map_URL);
+                imgDisplay.src = mapUrl || "https://placehold.co/600x400?text=No+Map+Available";
+                labelDisplay.innerText = "Store Map (ผังร้าน)";
+            } else {
+                btnShelf.classList.add('active-loc');
+                const shelfUrl = convertDriveLink(currentSlotData.Shelf_Photo_URL);
+                imgDisplay.src = shelfUrl || "https://placehold.co/600x400?text=No+Shelf+Photo";
+                labelDisplay.innerText = "Shelf Photo (รูปเชลฟ์)";
+            }
+        }
+
+        function showError(msg) {
+            document.getElementById('loading').classList.add('hidden');
+            const box = document.getElementById('error-msg');
+            box.innerText = msg;
+            box.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
