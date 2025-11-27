@@ -16,13 +16,23 @@
         .hidden { display: none !important; }
         #loading { position: fixed; inset: 0; background: white; z-index: 999; display: flex; justify-content: center; align-items: center; flex-direction: column; }
         iframe { width: 100%; height: 100%; }
+
+        /* PRINT STYLES */
+        @media print {
+            button, select, .no-print, #loading, #error-msg, .tab-btn:not(.active) { display: none !important; }
+            .bg-gray-50 { border: none !important; background: none !important; }
+            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; background-color: white !important; }
+            @page { size: landscape; margin: 0.5cm; }
+            .container { max-width: 100% !important; width: 100% !important; padding: 0 !important; }
+            .shadow-sm, .shadow-lg { box-shadow: none !important; border: 1px solid #ddd !important; }
+        }
     </style>
 </head>
 <body>
 
     <div id="loading">
         <i class="fa-solid fa-circle-notch fa-spin text-4xl text-emerald-600 mb-4"></i>
-        <p class="text-gray-500">Connecting to Database...</p>
+        <p class="text-gray-500">Authenticating & Loading Data...</p>
     </div>
 
     <header class="bg-white shadow-sm sticky top-0 z-50">
@@ -38,9 +48,14 @@
                 </div>
             </div>
             
-            <div class="flex items-center gap-2 bg-gray-50 border border-gray-200 px-3 py-2 rounded-lg">
-                <i class="fa-solid fa-calendar-days text-emerald-600"></i>
-                <select id="monthSelector" class="bg-transparent font-bold text-gray-700 outline-none cursor-pointer" onchange="changeMonth()"></select>
+            <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 bg-gray-50 border border-gray-200 px-3 py-2 rounded-lg">
+                    <i class="fa-solid fa-calendar-days text-emerald-600"></i>
+                    <select id="monthSelector" class="bg-transparent font-bold text-gray-700 outline-none cursor-pointer" onchange="changeMonth()"></select>
+                </div>
+                <button onclick="window.print()" class="ml-2 bg-emerald-600 hover:bg-emerald-500 text-white w-10 h-10 flex items-center justify-center rounded-lg transition shadow-sm" title="Print / Save PDF">
+                    <i class="fa-solid fa-print"></i>
+                </button>
             </div>
         </div>
     </header>
@@ -76,7 +91,6 @@
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                    
                     <div class="bg-white p-4 rounded-xl shadow-sm flex flex-col h-full">
                         <div class="flex justify-between items-center mb-3">
                             <h3 class="font-bold text-gray-700"><i class="fa-solid fa-play-circle text-emerald-600 mr-2"></i>Media Preview (สื่อโฆษณา)</h3>
@@ -85,7 +99,6 @@
                             <video id="main-video" class="w-full h-full object-contain hidden" controls autoplay muted loop playsinline><source src="" type="video/mp4"></video>
                             <iframe id="youtube-frame" class="hidden" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
                             <img id="main-image" class="w-full h-full object-contain hidden" src="">
-                            
                             <div id="media-loader" class="absolute inset-0 flex items-center justify-center bg-gray-900 text-white flex-col hidden">
                                 <i class="fa-solid fa-circle-notch fa-spin text-2xl"></i>
                             </div>
@@ -95,7 +108,7 @@
 
                     <div class="bg-white p-4 rounded-xl shadow-sm flex flex-col h-full">
                         <div class="flex justify-between items-center mb-3">
-                            <h3 class="font-bold text-gray-700"><i class="fa-solid fa-camera text-emerald-600 mr-2"></i>Shelf Photo (รูปจอในร้าน)</h3>
+                            <h3 class="font-bold text-gray-700"><i class="fa-solid fa-camera text-emerald-600 mr-2"></i>Shelf Photo (รูปถ่ายหน้างาน)</h3>
                         </div>
                         <div class="relative bg-gray-100 rounded-lg overflow-hidden flex-1 min-h-[300px]">
                             <img id="shelf-display-img" src="" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/600x400?text=No+Shelf+Photo'">
@@ -111,7 +124,6 @@
                         <i class="fa-solid fa-map-location-dot text-emerald-600 text-xl"></i>
                         <h3 class="font-bold text-gray-700 text-lg">Store Map Overview (ผังร้านค้า)</h3>
                     </div>
-                    
                     <div class="w-full bg-gray-50 rounded-lg overflow-hidden border border-gray-100 flex justify-center">
                         <img id="map-display-img" src="" class="w-full h-auto object-contain max-h-[600px]" onerror="this.src='https://placehold.co/1000x400?text=No+Store+Map+Available'">
                     </div>
@@ -123,7 +135,7 @@
 
     <script>
         // ==========================================
-        //  CSV Link ของคุณ
+        //  CSV Link (อย่าลืมตรวจสอบลิงก์นี้)
         // ==========================================
         const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRPt5_VqUQSurUF8zod1Ns67QBSMvPhFwpuwvniE8wzX3dDOrXyxClrDywMwMnkaJ-Ite1M3DlLeTZt/pub?output=csv"; 
         // ==========================================
@@ -142,7 +154,6 @@
         function processMediaLink(url) {
             if (!url) return { type: 'none', url: '' };
             url = url.trim();
-            
             if (url.includes("drive.google.com") && url.includes("/d/")) {
                 const idMatch = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
                 if (idMatch && idMatch[1]) return { type: 'drive', url: `https://drive.google.com/uc?export=view&id=${idMatch[1]}` };
@@ -154,7 +165,6 @@
                 if (videoId) return { type: 'youtube', url: `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}` };
             }
             if (url.match(/\.(mp4|webm|mov)$/i)) return { type: 'video', url: url };
-            
             return { type: 'image', url: url };
         }
 
@@ -171,9 +181,10 @@
         window.onload = function() {
             const urlParams = new URLSearchParams(window.location.search);
             const brandID = urlParams.get('brand');
-            if (!brandID) { showError("Error: No Brand ID specified in URL (e.g., ?brand=terra)"); return; }
+            if (!brandID) { showError("Error: No Brand ID specified in URL."); return; }
 
-            document.getElementById('brand-title').innerText = brandID;
+            // ยังไม่โชว์ Title จนกว่าจะโหลดข้อมูลเสร็จ
+            document.getElementById('brand-title').innerText = "Loading...";
             fetchData(brandID);
         };
 
@@ -182,9 +193,14 @@
                 download: true, header: true, skipEmptyLines: true,
                 complete: function(results) {
                     const rows = results.data;
-                    const filtered = rows.filter(row => row.Brand_ID && row.Brand_ID.toLowerCase().trim() === brandID.toLowerCase().trim());
+                    const filtered = rows.filter(row => row.Brand_ID && row.Brand_ID.trim() === brandID.trim());
 
-                    if (filtered.length === 0) { showError("No data found for brand: " + brandID); return; }
+                    if (filtered.length === 0) { showError("Invalid Brand ID or No Data Found."); return; }
+
+                    // --- UPDATE 1: ดึง Brand_Name มาโชว์ ---
+                    // ถ้าใน Sheet มีคอลัมน์ Brand_Name ให้ใช้ค่านี้ ถ้าไม่มีให้ใช้ ID แทน
+                    const brandName = filtered[0].Brand_Name || brandID;
+                    document.getElementById('brand-title').innerText = brandName;
 
                     if (filtered[0].Brand_Logo_URL) {
                         const logoMedia = processMediaLink(filtered[0].Brand_Logo_URL);
