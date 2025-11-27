@@ -9,44 +9,50 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Sarabun', sans-serif; background-color: #111827; color: #fff; } /* Dark Mode Theme */
+        body { font-family: 'Sarabun', sans-serif; background-color: #111827; color: #fff; } /* Dark Mode */
         .brand-card:hover { transform: translateY(-5px); border-color: #10b981; }
         .search-box:focus-within { border-color: #10b981; box-shadow: 0 0 15px rgba(16, 185, 129, 0.3); }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1f2937; }
+        ::-webkit-scrollbar-thumb { background: #374151; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #4b5563; }
     </style>
 </head>
 <body>
 
-    <header class="bg-gray-900 border-b border-gray-800 sticky top-0 z-50">
+    <header class="bg-gray-900 border-b border-gray-800 sticky top-0 z-50 shadow-lg">
         <div class="container mx-auto px-6 py-4 flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-emerald-600 rounded flex items-center justify-center font-bold text-white text-xl">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-emerald-600 rounded-lg flex items-center justify-center font-bold text-white text-2xl shadow-emerald-900/50 shadow-lg">
                     <i class="fa-solid fa-network-wired"></i>
                 </div>
                 <div>
                     <h1 class="text-xl font-bold tracking-wider text-white">COMMAND CENTER</h1>
-                    <p class="text-xs text-gray-400">Media Management System</p>
+                    <p class="text-xs text-gray-400">Centralized Media Management System</p>
                 </div>
             </div>
             
-            <div class="text-right">
-                <div class="text-xs text-gray-500">Total Brands</div>
-                <div class="text-2xl font-bold text-emerald-500" id="total-count">0</div>
+            <div class="text-right hidden md:block">
+                <div class="text-xs text-gray-500 uppercase tracking-widest">Total Active Brands</div>
+                <div class="text-3xl font-bold text-emerald-500" id="total-count">0</div>
             </div>
         </div>
     </header>
 
     <main class="container mx-auto px-6 py-10">
 
-        <div class="max-w-2xl mx-auto mb-10">
+        <div class="max-w-2xl mx-auto mb-12">
             <div class="search-box flex items-center bg-gray-800 border-2 border-gray-700 rounded-xl px-4 py-3 transition-all duration-300">
-                <i class="fa-solid fa-search text-gray-400 text-lg mr-3"></i>
-                <input type="text" id="searchInput" placeholder="Search Brand Name..." class="bg-transparent border-none outline-none text-white w-full text-lg placeholder-gray-500" onkeyup="filterBrands()">
+                <i class="fa-solid fa-search text-gray-400 text-xl mr-4"></i>
+                <input type="text" id="searchInput" placeholder="Search Brand Name or ID..." class="bg-transparent border-none outline-none text-white w-full text-lg placeholder-gray-500" onkeyup="filterBrands()">
             </div>
+            <p class="text-center text-gray-500 text-xs mt-3">System auto-syncs with Google Sheets database.</p>
         </div>
 
         <div id="loading" class="text-center py-20">
-            <i class="fa-solid fa-circle-notch fa-spin text-4xl text-emerald-600 mb-4"></i>
-            <p class="text-gray-400">Syncing with Google Sheets...</p>
+            <i class="fa-solid fa-circle-notch fa-spin text-5xl text-emerald-600 mb-6"></i>
+            <p class="text-gray-400 text-lg animate-pulse">Syncing Database...</p>
         </div>
 
         <div id="brand-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 hidden">
@@ -54,19 +60,31 @@
 
     </main>
 
-    <footer class="text-center py-8 text-gray-600 text-xs">
-        Authorized Personnel Only
+    <footer class="text-center py-8 text-gray-600 text-xs border-t border-gray-800 mt-10">
+        <p>SECURE ADMIN PANEL | VER 2.5</p>
     </footer>
 
     <script>
         // ==========================================
-        //  ใส่ Link CSV เดียวกับหน้า report ครับ
+        //  ใส่ Link CSV อันเดียวกับหน้า index.html
         // ==========================================
-        const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRPt5_VqUQSurUF8zod1Ns67QBSMvPhFwpuwvniE8wzX3dDOrXyxClrDywMwMnkaJ-Ite1M3DlLeTZt/pub?gid=0&single=true&output=csv"; 
-        const REPORT_PAGE_URL = "index.html"; // ชื่อไฟล์หน้า report ของคุณ
+        const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRPt5_VqUQSurUF8zod1Ns67QBSMvPhFwpuwvniE8wzX3dDOrXyxClrDywMwMnkaJ-Ite1M3DlLeTZt/pub?output=csv"; 
+        
+        const REPORT_PAGE_URL = "index.html"; // ชื่อไฟล์หน้า report
         // ==========================================
 
         let allBrands = [];
+
+        // Helper: Convert Drive Link (เพื่อให้ Logo ขึ้น)
+        function convertDriveLink(url) {
+            if (!url) return "";
+            url = url.trim();
+            if (url.includes("drive.google.com") && url.includes("/d/")) {
+                const idMatch = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+                if (idMatch && idMatch[1]) return `https://drive.google.com/uc?export=view&id=${idMatch[1]}`;
+            }
+            return url;
+        }
 
         window.onload = function() {
             fetchData();
@@ -81,37 +99,34 @@
                     processData(results.data);
                 },
                 error: function(err) {
-                    alert("Connection Failed");
+                    alert("Connection Failed: Cannot load Google Sheet.");
                 }
             });
         }
 
         function processData(rows) {
-            // 1. ดึงรายชื่อ Brand ทั้งหมด แล้วทำให้ไม่ซ้ำกัน (Unique)
             const uniqueBrands = {};
             
             rows.forEach(row => {
                 if(!row.Brand_ID) return;
                 
                 const id = row.Brand_ID.trim();
-                const name = id.toUpperCase(); // หรือจะใช้ row.Brand_Name ถ้ามีคอลัมน์นั้น
-                const month = row.Month;
-
+                const name = id.toUpperCase();
+                
+                // เก็บข้อมูลแบรนด์ (เอาโลโก้จากแถวแรกที่เจอ)
                 if(!uniqueBrands[id]) {
                     uniqueBrands[id] = {
                         id: id,
                         name: name,
-                        lastMonth: month,
+                        logo: row.Brand_Logo_URL || "", // ดึง URL โลโก้มาเก็บไว้
                         slotCount: 0
                     };
                 }
                 uniqueBrands[id].slotCount++;
             });
 
-            // แปลง Object เป็น Array เพื่อเอาไป Loop
             allBrands = Object.values(uniqueBrands);
-
-            // เรียงตามตัวอักษร
+            // เรียงตามตัวอักษร A-Z
             allBrands.sort((a, b) => a.name.localeCompare(b.name));
 
             renderGrid(allBrands);
@@ -126,35 +141,30 @@
             grid.innerHTML = '';
 
             brands.forEach(brand => {
+                const logoUrl = convertDriveLink(brand.logo);
+                // ถ้ามีโลโก้ ให้โชว์โลโก้ ถ้าไม่มี ให้โชว์ตัวอักษรย่อ
+                const logoHtml = logoUrl 
+                    ? `<img src="${logoUrl}" class="w-full h-full object-contain p-2 bg-white">`
+                    : `<span class="text-2xl font-bold text-gray-400">${brand.name.charAt(0)}</span>`;
+
                 const card = document.createElement('a');
-                // ลิงก์ไปยังหน้า Report พร้อมแนบ ?brand=...
-                card.href = `${REPORT_PAGE_URL}?brand=${brand.id}`; 
-                card.target = "_blank"; // เปิดแท็บใหม่
-                card.className = `brand-card block bg-gray-800 border border-gray-700 rounded-xl p-6 transition-all duration-300 group relative overflow-hidden`;
+                card.href = `${REPORT_PAGE_URL}?brand=${brand.id}`; // สร้าง Link อัตโนมัติ
+                card.target = "_blank"; 
+                card.className = `brand-card block bg-gray-800 border border-gray-700 rounded-xl p-6 transition-all duration-300 group relative overflow-hidden flex items-center gap-4`;
                 
                 card.innerHTML = `
-                    <div class="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition">
-                        <i class="fa-solid fa-chart-line text-6xl text-white"></i>
+                    <div class="relative z-10 w-16 h-16 rounded-lg bg-gray-700 flex-shrink-0 overflow-hidden border border-gray-600 flex items-center justify-center">
+                        ${logoHtml}
                     </div>
-                    <div class="relative z-10">
-                        <div class="flex items-center gap-3 mb-4">
-                            <div class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-emerald-400 font-bold border border-gray-600">
-                                ${brand.name.charAt(0)}
-                            </div>
-                            <div>
-                                <h3 class="text-lg font-bold text-white group-hover:text-emerald-400 transition">${brand.name}</h3>
-                                <p class="text-xs text-gray-400">ID: ${brand.id}</p>
-                            </div>
-                        </div>
-                        
-                        <div class="border-t border-gray-700 pt-3 mt-2 flex justify-between items-center text-sm">
-                            <span class="text-gray-500">Active Records</span>
-                            <span class="bg-gray-900 text-white px-2 py-1 rounded text-xs font-mono">${brand.slotCount} Rows</span>
-                        </div>
-                        
-                        <div class="mt-4 flex items-center text-emerald-500 text-sm font-semibold opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition">
-                            View Report <i class="fa-solid fa-arrow-right ml-2"></i>
-                        </div>
+                    <div class="flex-1 min-w-0">
+                        <h3 class="text-lg font-bold text-white group-hover:text-emerald-400 transition truncate">${brand.name}</h3>
+                        <p class="text-xs text-gray-500 mb-1">ID: ${brand.id}</p>
+                        <span class="inline-block bg-gray-900 text-gray-300 text-[10px] px-2 py-0.5 rounded border border-gray-700">
+                            ${brand.slotCount} Data Rows
+                        </span>
+                    </div>
+                    <div class="text-gray-600 group-hover:text-emerald-500 transition">
+                        <i class="fa-solid fa-chevron-right"></i>
                     </div>
                 `;
                 grid.appendChild(card);
