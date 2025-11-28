@@ -13,22 +13,20 @@
     <style>
         body { font-family: 'Sarabun', sans-serif; background-color: #f8fafc; }
         
-        /* --- COMPACT PILL BUTTON STYLE --- */
+        /* --- CAPSULE BUTTON STYLE --- */
         .tab-btn {
-            @apply px-4 py-1.5 rounded-full border border-gray-300 bg-white text-gray-500 text-sm font-bold transition-all duration-200 cursor-pointer select-none;
-            display: flex; align-items: center; gap: 6px;
+            /* ทรงรี, มีขอบชัดเจน, พื้นขาว */
+            @apply px-6 py-2 rounded-full border-2 border-gray-300 bg-white text-gray-500 font-bold transition-all duration-200 shadow-sm text-sm whitespace-nowrap;
         }
+        
+        /* ตอนเอาเมาส์ชี้ */
         .tab-btn:hover {
-            @apply border-emerald-400 text-emerald-600 bg-emerald-50;
+            @apply border-emerald-400 text-emerald-600 bg-emerald-50 transform -translate-y-0.5 shadow-md;
         }
+
+        /* ตอนถูกเลือก (Active) - สีเขียวทึบ */
         .tab-btn.active {
-            @apply bg-emerald-600 border-emerald-600 text-white shadow-sm ring-2 ring-emerald-100 ring-offset-1;
-        }
-        .tab-btn .status-dot {
-            @apply w-2 h-2 rounded-full bg-gray-300;
-        }
-        .tab-btn.active .status-dot {
-            @apply bg-white;
+            @apply bg-emerald-600 border-emerald-600 text-white shadow-md;
         }
         
         .hidden { display: none !important; }
@@ -118,13 +116,13 @@
 
         <div id="main-content" class="hidden">
             
-            <div class="mb-6 flex flex-col md:flex-row md:items-center gap-4 pb-4 border-b border-gray-200">
+            <div class="mb-8 flex flex-wrap items-center gap-4 pb-4 border-b border-gray-200">
                 <div class="flex items-center gap-2 text-gray-400">
                     <i class="fa-solid fa-layer-group"></i>
-                    <span class="text-sm font-bold uppercase tracking-wider whitespace-nowrap">Select Slot:</span>
+                    <span class="text-sm font-bold uppercase tracking-wider whitespace-nowrap">SELECT SLOT:</span>
                 </div>
                 
-                <div class="flex flex-wrap gap-2" id="tab-container">
+                <div class="flex flex-wrap gap-3" id="tab-container">
                     </div>
             </div>
 
@@ -384,15 +382,11 @@
             container.innerHTML = '';
             currentSlots.forEach((item, index) => {
                 const btn = document.createElement('button');
-                // Compact Pill Style Button
+                // Capsule Button Style
                 btn.className = `tab-btn`;
                 btn.onclick = () => loadSlot(index);
                 btn.id = `tab-${index}`;
-                
-                btn.innerHTML = `
-                    <div class="status-dot"></div>
-                    <span>${item.Slot_ID || 'Unknown'}</span>
-                `;
+                btn.innerText = item.Slot_ID || 'Unknown Slot';
                 container.appendChild(btn);
             });
         }
