@@ -11,20 +11,40 @@
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;700&display=swap" rel="stylesheet">
     
     <style>
-        body { font-family: 'Sarabun', sans-serif; background-color: #f8fafc; }
+        body { font-family: 'Sarabun', sans-serif; background-color: #f0f2f5; }
         
-        /* --- ORIGINAL BUTTON STYLE (Card Layout) --- */
+        /* --- 3D BUTTON STYLE (CLICKABLE LOOK) --- */
         .tab-btn {
-            @apply p-4 rounded-xl border-2 border-gray-200 bg-white hover:border-emerald-400 transition-all duration-200 text-left group shadow-sm;
+            @apply flex flex-col items-center justify-center p-4 rounded-xl border-2 border-gray-300 bg-white text-gray-600 font-bold transition-all duration-150;
+            /* เพิ่มเงาให้ดูลอยๆ */
+            box-shadow: 0 4px 0 #cbd5e1; 
+            transform: translateY(0);
         }
+        
+        /* ตอนเอาเมาส์ชี้ (Hover) */
+        .tab-btn:hover {
+            @apply border-emerald-400 text-emerald-600 bg-emerald-50;
+            transform: translateY(-2px); /* ลอยขึ้นนิดนึง */
+            box-shadow: 0 6px 0 #a7f3d0; /* เงาสูงขึ้น */
+        }
+
+        /* ตอนถูกเลือก (Active/Pressed) */
         .tab-btn.active {
-            @apply border-emerald-600 ring-1 ring-emerald-600;
+            @apply bg-emerald-600 border-emerald-700 text-white;
+            /* กดลงไปจนสุด (ไม่มีเงาล่าง) */
+            box-shadow: 0 0 0 transparent; 
+            transform: translateY(4px); 
         }
-        .tab-btn.active .slot-text {
-            @apply text-emerald-700;
+
+        /* ไอคอนลูกศรในปุ่ม */
+        .tab-btn .icon-indicator {
+            @apply text-gray-300 mt-2 text-sm transition-colors;
         }
-        .tab-btn.active .icon-arrow {
-            @apply text-emerald-600 translate-x-1;
+        .tab-btn:hover .icon-indicator {
+            @apply text-emerald-400;
+        }
+        .tab-btn.active .icon-indicator {
+            @apply text-emerald-200;
         }
         
         .hidden { display: none !important; }
@@ -39,6 +59,8 @@
             @page { size: landscape; margin: 0.5cm; }
             .container { max-width: 100% !important; width: 100% !important; padding: 0 !important; }
             .shadow-sm, .shadow-lg { box-shadow: none !important; border: 1px solid #ddd !important; }
+            /* Reset 3D effect for print */
+            .tab-btn.active { box-shadow: none !important; transform: none !important; border: 2px solid #059669 !important; }
         }
 
         /* --- MAP STYLES --- */
@@ -156,7 +178,7 @@
         <div id="main-content" class="hidden">
             <div class="mb-8">
                 <h2 class="text-gray-500 text-sm mb-3 font-semibold uppercase tracking-wider">Select Slot</h2>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="tab-container"></div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4" id="tab-container"></div>
             </div>
 
             <div class="animate-fade-in">
@@ -415,16 +437,15 @@
             container.innerHTML = '';
             currentSlots.forEach((item, index) => {
                 const btn = document.createElement('button');
-                // Original Card Style Button
-                btn.className = `tab-btn w-full`;
+                // ใช้ Style เดิม (3D Button)
+                btn.className = `tab-btn flex flex-col items-center justify-center p-4 rounded-xl border-2 border-gray-300 bg-white text-gray-600 font-bold transition-all duration-150 shadow-sm`;
+                btn.style.boxShadow = "0 4px 0 #cbd5e1";
                 btn.onclick = () => loadSlot(index);
                 btn.id = `tab-${index}`;
                 
                 btn.innerHTML = `
-                    <div class="flex justify-between items-center">
-                        <span class="font-bold text-lg truncate slot-text">${item.Slot_ID || 'Unknown'}</span>
-                        <i class="fa-solid fa-chevron-right text-gray-300 transition-transform icon-arrow"></i>
-                    </div>
+                    <span class="text-lg mb-1">${item.Slot_ID || 'Unknown'}</span>
+                    <i class="fa-solid fa-chevron-down text-gray-300 icon-indicator"></i>
                 `;
                 container.appendChild(btn);
             });
@@ -432,8 +453,16 @@
 
         function loadSlot(index) {
             currentSlotData = currentSlots[index];
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(`tab-${index}`).classList.add('active');
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+                btn.style.boxShadow = "0 4px 0 #cbd5e1";
+                btn.style.transform = "translateY(0)";
+            });
+            
+            const activeBtn = document.getElementById(`tab-${index}`);
+            activeBtn.classList.add('active');
+            activeBtn.style.boxShadow = "0 0 0 transparent";
+            activeBtn.style.transform = "translateY(4px)";
 
             document.getElementById('val-slot').innerText = currentSlotData.Slot_ID;
             document.getElementById('val-imp').innerText = cleanNumber(currentSlotData.Impression).toLocaleString();
