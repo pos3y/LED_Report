@@ -13,37 +13,37 @@
     <style>
         body { font-family: 'Sarabun', sans-serif; background-color: #f8fafc; }
         
-        /* --- BUTTON STYLE --- */
+        /* --- FIXED BUTTON STYLE (Standard CSS) --- */
         .tab-btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            padding: 8px 24px;
-            border-radius: 99px;
-            border: 2px solid #cbd5e1;
+            padding: 8px 24px;       
+            border-radius: 99px;    
+            border: 2px solid #cbd5e1; 
             background-color: white;
-            color: #64748b;
+            color: #64748b;          
             font-weight: 700;
             font-size: 14px;
             cursor: pointer;
             transition: all 0.2s ease;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            white-space: nowrap;
+            white-space: nowrap;     
         }
         
         .tab-btn:hover {
-            border-color: #34d399;
-            color: #059669;
-            background-color: #ecfdf5;
+            border-color: #34d399;   
+            color: #059669;          
+            background-color: #ecfdf5; 
             transform: translateY(-2px);
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
         .tab-btn.active {
-            background-color: #059669;
+            background-color: #059669; 
             border-color: #047857;
             color: white;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); 
         }
         
         .hidden { display: none !important; }
@@ -104,9 +104,18 @@
             display: flex; align-items: center; justify-content: center; 
             z-index: 10; font-size: 14px; 
         }
+        
         .outside-box { background-color: #94a3b8; border-color: #64748b; }
         .vertical-text { writing-mode: vertical-rl; text-orientation: mixed; transform: rotate(180deg); }
         .move-up { transform: translateY(-30px); }
+        
+        /* Entrance Label Style */
+        .entrance-label {
+            writing-mode: vertical-rl; text-orientation: mixed; transform: rotate(180deg);
+            display: flex; align-items: center; justify-content: center;
+            color: #cbd5e1; font-weight: bold; font-size: 24px; letter-spacing: 4px; opacity: 0.8;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
@@ -216,6 +225,7 @@
                             <div class="office-bg"></div>
 
                             <div id="ML" class="slot-box outside-box col-start-1 row-start-1 row-span-2 w-full">ML</div>
+                            <div class="col-start-1 row-start-3 row-span-5 entrance-label w-full flex items-center justify-center">ENTRANCE</div>
                             <div id="MR" class="slot-box outside-box col-start-1 row-start-8 row-span-2 w-full">MR</div>
 
                             <div class="col-start-3 col-span-7 row-start-1 flex gap-1 h-8 mt-2 z-10 justify-start">
@@ -275,7 +285,7 @@
                                 <div id="CS" class="slot-box w-full h-full">CS</div>
                             </div>
                             
-                            <div class="col-start-4 col-span-6 row-start-9 flex gap-1 h-8 self-end z-10 mb-1 justify-start">
+                            <div class="col-start-5 col-span-3 row-start-9 flex gap-1 h-8 self-end z-10 mb-1 justify-start">
                                 <div id="WR1" class="slot-box w-16">WR1</div>
                                 <div id="WR2" class="slot-box w-16">WR2</div>
                                 <div id="WR3" class="slot-box w-16">WR3</div>
