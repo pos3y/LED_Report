@@ -27,7 +27,7 @@
                 </div>
                 <div>
                     <h1 class="text-xl font-bold tracking-wider text-white">COMMAND CENTER</h1>
-                    <p class="text-xs text-gray-400">Brand Management</p>
+                    <p class="text-xs text-gray-400">Centralized Media Management System</p>
                 </div>
             </div>
             
@@ -59,16 +59,18 @@
     </main>
 
     <footer class="text-center py-8 text-gray-600 text-xs border-t border-gray-800 mt-10">
-        <p>SECURE ADMIN PANEL | VER 3.0</p>
+        <p>SECURE ADMIN PANEL | VER 3.2 (Clean URL)</p>
     </footer>
 
     <script>
         // ==========================================
-        //  ใส่ Link CSV อันเดียวกับหน้า index.html
+        //  ใส่ Link CSV ของคุณ
         // ==========================================
         const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRPt5_VqUQSurUF8zod1Ns67QBSMvPhFwpuwvniE8wzX3dDOrXyxClrDywMwMnkaJ-Ite1M3DlLeTZt/pub?output=csv"; 
         
-        const REPORT_PAGE_URL = "index.html"; // ชื่อไฟล์หน้า report
+        // *** แก้ตรงนี้: ใช้ "./" เพื่อให้ลิงก์เป็น Clean URL ***
+        // ผลลัพธ์: yoursite.com/?brand=xyz (ไม่มี index.html)
+        const REPORT_PAGE_URL = "./"; 
         // ==========================================
 
         let allBrands = [];
@@ -87,44 +89,29 @@
             fetchData();
         };
 
-        function fetchData() {
+        function fetchData(brandID) {
             Papa.parse(SHEET_CSV_URL, {
-                download: true,
-                header: true,
-                skipEmptyLines: true,
-                complete: function(results) {
-                    processData(results.data);
-                },
-                error: function(err) {
-                    alert("Connection Failed: Cannot load Google Sheet.");
-                }
+                download: true, header: true, skipEmptyLines: true,
+                complete: function(results) { processData(results.data); },
+                error: function(err) { alert("Connection Failed: Cannot load Google Sheet."); }
             });
         }
 
         function processData(rows) {
             const uniqueBrands = {};
-            
             rows.forEach(row => {
                 if(!row.Brand_ID) return;
-                
-                const id = row.Brand_ID.trim(); // รหัสลับ
-                // ใช้ Brand_Name ถ้ามี, ถ้าไม่มีใช้ ID แทน
+                const id = row.Brand_ID.trim();
                 const name = row.Brand_Name ? row.Brand_Name.trim().toUpperCase() : id.toUpperCase();
                 
                 if(!uniqueBrands[id]) {
-                    uniqueBrands[id] = {
-                        id: id,
-                        name: name,
-                        logo: row.Brand_Logo_URL || "",
-                        slotCount: 0
-                    };
+                    uniqueBrands[id] = { id: id, name: name, logo: row.Brand_Logo_URL || "", slotCount: 0 };
                 }
                 uniqueBrands[id].slotCount++;
             });
 
             allBrands = Object.values(uniqueBrands);
             allBrands.sort((a, b) => a.name.localeCompare(b.name));
-
             renderGrid(allBrands);
         }
 
@@ -143,8 +130,10 @@
                     : `<span class="text-2xl font-bold text-gray-400">${brand.name.charAt(0)}</span>`;
 
                 const card = document.createElement('a');
-                // *** จุดสำคัญ: สร้าง Link ด้วย Brand ID (รหัสลับ) ***
+                
+                // สร้างลิงก์แบบ Clean URL
                 card.href = `${REPORT_PAGE_URL}?brand=${brand.id}`; 
+                
                 card.target = "_blank"; 
                 card.className = `brand-card block bg-gray-800 border border-gray-700 rounded-xl p-6 transition-all duration-300 group relative overflow-hidden flex items-center gap-4`;
                 
@@ -169,7 +158,6 @@
 
         function filterBrands() {
             const query = document.getElementById('searchInput').value.toLowerCase();
-            // ค้นหาได้ทั้ง ชื่อแบรนด์ และ รหัสลับ
             const filtered = allBrands.filter(b => b.name.toLowerCase().includes(query) || b.id.toLowerCase().includes(query));
             renderGrid(filtered);
         }
