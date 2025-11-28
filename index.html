@@ -13,20 +13,39 @@
     <style>
         body { font-family: 'Sarabun', sans-serif; background-color: #f8fafc; }
         
-        /* --- CAPSULE BUTTON STYLE --- */
+        /* --- FIXED BUTTON STYLE (Standard CSS) --- */
         .tab-btn {
-            /* ทรงรี, มีขอบชัดเจน, พื้นขาว */
-            @apply px-6 py-2 rounded-full border-2 border-gray-300 bg-white text-gray-500 font-bold transition-all duration-200 shadow-sm text-sm whitespace-nowrap;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 24px;       /* ความอ้วนของปุ่ม */
+            border-radius: 999px;    /* ทำเป็นวงรีแคปซูล */
+            border: 2px solid #cbd5e1; /* สีขอบเทา */
+            background-color: white;
+            color: #64748b;          /* สีตัวหนังสือเทาเข้ม */
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            white-space: nowrap;     /* ห้ามตัดบรรทัด */
         }
         
         /* ตอนเอาเมาส์ชี้ */
         .tab-btn:hover {
-            @apply border-emerald-400 text-emerald-600 bg-emerald-50 transform -translate-y-0.5 shadow-md;
+            border-color: #34d399;   /* สีขอบเขียว */
+            color: #059669;          /* สีตัวหนังสือเขียว */
+            background-color: #ecfdf5; /* พื้นหลังเขียวอ่อน */
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
-        /* ตอนถูกเลือก (Active) - สีเขียวทึบ */
+        /* ตอนถูกเลือก (Active) */
         .tab-btn.active {
-            @apply bg-emerald-600 border-emerald-600 text-white shadow-md;
+            background-color: #059669; /* เขียวทึบ */
+            border-color: #047857;
+            color: white;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); /* เงาด้านในให้ดูลึก */
         }
         
         .hidden { display: none !important; }
@@ -207,7 +226,6 @@
                                 <div id="GR1-F" class="g-slot">GR1-F</div> <div id="GR1-M" class="g-slot">GR1-M</div> <div id="GR1-B" class="g-slot">GR1-B</div>
                             </div>
                             <div id="GF2" class="col-start-2 row-start-5 slot-box writing-vertical text-[8px] h-full move-up" style="background-color: #64748b; border-color: #475569;">GF2</div>
-                            
                             <div class="col-start-3 row-start-5 g-container move-up">
                                 <div id="GL2-F" class="g-slot">GL2-F</div> <div id="GL2-M" class="g-slot">GL2-M</div> <div id="GL2-B" class="g-slot">GL2-B</div>
                                 <div id="GR2-F" class="g-slot">GR2-F</div> <div id="GR2-M" class="g-slot">GR2-M</div> <div id="GR2-B" class="g-slot">GR2-B</div>
@@ -382,8 +400,7 @@
             container.innerHTML = '';
             currentSlots.forEach((item, index) => {
                 const btn = document.createElement('button');
-                // Capsule Button Style
-                btn.className = `tab-btn`;
+                btn.className = `tab-btn`; // สไตล์ปุ่มแบบใหม่
                 btn.onclick = () => loadSlot(index);
                 btn.id = `tab-${index}`;
                 btn.innerText = item.Slot_ID || 'Unknown Slot';
