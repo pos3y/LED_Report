@@ -13,22 +13,18 @@
     <style>
         body { font-family: 'Sarabun', sans-serif; background-color: #f8fafc; }
         
-        /* --- NEW DYNAMIC BUTTON STYLE --- */
+        /* --- ORIGINAL BUTTON STYLE (Card Layout) --- */
         .tab-btn {
-            @apply flex items-center justify-center gap-3 p-4 rounded-xl border border-gray-200 bg-white text-gray-500 font-bold transition-all duration-200 shadow-sm;
-            min-width: 200px; /* ขนาดขั้นต่ำ */
-        }
-        .tab-btn:hover {
-            @apply border-emerald-400 text-emerald-600 shadow-md -translate-y-0.5;
+            @apply p-4 rounded-xl border-2 border-gray-200 bg-white hover:border-emerald-400 transition-all duration-200 text-left group shadow-sm;
         }
         .tab-btn.active {
-            @apply bg-emerald-600 border-emerald-600 text-white shadow-lg ring-4 ring-emerald-100;
+            @apply border-emerald-600 ring-1 ring-emerald-600;
         }
-        .tab-btn .icon-box {
-            @apply w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 transition-colors;
+        .tab-btn.active .slot-text {
+            @apply text-emerald-700;
         }
-        .tab-btn.active .icon-box {
-            @apply bg-white/20 text-white;
+        .tab-btn.active .icon-arrow {
+            @apply text-emerald-600 translate-x-1;
         }
         
         .hidden { display: none !important; }
@@ -123,13 +119,6 @@
         .outside-box { background-color: #94a3b8; border-color: #64748b; }
         .vertical-text { writing-mode: vertical-rl; text-orientation: mixed; transform: rotate(180deg); }
         .move-up { transform: translateY(-30px); }
-        
-        /* สไตล์พิเศษสำหรับ GF2 ให้เหมือนเพื่อนๆ */
-        .gf2-style {
-            background-color: #64748b; /* สีเดียวกับ slot-box */
-            border: 1px solid #475569;
-            color: white;
-        }
     </style>
 </head>
 <body>
@@ -167,7 +156,7 @@
         <div id="main-content" class="hidden">
             <div class="mb-8">
                 <h2 class="text-gray-500 text-sm mb-3 font-semibold uppercase tracking-wider">Select Slot</h2>
-                <div class="flex flex-wrap gap-4" id="tab-container"></div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="tab-container"></div>
             </div>
 
             <div class="animate-fade-in">
@@ -235,22 +224,22 @@
                             <div id="ML" class="slot-box outside-box col-start-1 row-start-1 row-span-2 w-full">ML</div>
                             <div id="MR" class="slot-box outside-box col-start-1 row-start-8 row-span-2 w-full">MR</div>
 
-                            <div class="col-start-3 col-span-7 row-start-1 flex gap-1 h-8 mt-2 z-10 justify-start">
-                                <div id="WL1" class="slot-box w-16">WL1</div>
-                                <div id="WL2" class="slot-box w-16">WL2</div>
-                                <div id="WL3" class="slot-box w-16">WL3</div>
-                                <div id="WL4" class="slot-box w-16">WL4</div>
-                                <div id="WL5" class="slot-box w-16">WL5</div>
-                                <div id="WL6" class="slot-box w-16">WL6</div>
-                                <div id="WL7" class="slot-box w-16">WL7</div>
-                                <div id="WL8" class="slot-box w-16">WL8</div>
+                            <div class="col-start-3 col-span-6 row-start-1 flex gap-1 h-8 mt-2 z-10">
+                                <div id="WL1" class="slot-box flex-1">WL1</div>
+                                <div id="WL2" class="slot-box flex-1">WL2</div>
+                                <div id="WL3" class="slot-box flex-1">WL3</div>
+                                <div id="WL4" class="slot-box flex-1">WL4</div>
+                                <div id="WL5" class="slot-box flex-1">WL5</div>
+                                <div id="WL6" class="slot-box flex-1">WL6</div>
+                                <div id="WL7" class="slot-box flex-1">WL7</div>
+                                <div id="WL8" class="slot-box flex-1">WL8</div>
                             </div>
 
                             <div class="col-start-3 row-start-3 g-container move-up">
                                 <div id="GL1-F" class="g-slot">GL1-F</div> <div id="GL1-M" class="g-slot">GL1-M</div> <div id="GL1-B" class="g-slot">GL1-B</div>
                                 <div id="GR1-F" class="g-slot">GR1-F</div> <div id="GR1-M" class="g-slot">GR1-M</div> <div id="GR1-B" class="g-slot">GR1-B</div>
                             </div>
-                            <div id="GF2" class="col-start-2 row-start-5 slot-box writing-vertical text-[8px] h-full move-up">GF2</div>
+                            <div id="GF2" class="col-start-2 row-start-5 slot-box writing-vertical text-[8px] h-full move-up" style="background-color: #64748b; border-color: #475569;">GF2</div>
                             
                             <div class="col-start-3 row-start-5 g-container move-up">
                                 <div id="GL2-F" class="g-slot">GL2-F</div> <div id="GL2-M" class="g-slot">GL2-M</div> <div id="GL2-B" class="g-slot">GL2-B</div>
@@ -426,15 +415,16 @@
             container.innerHTML = '';
             currentSlots.forEach((item, index) => {
                 const btn = document.createElement('button');
-                // New Button Style: Flex + Growing
-                btn.className = `tab-btn flex-1`;
+                // Original Card Style Button
+                btn.className = `tab-btn w-full`;
                 btn.onclick = () => loadSlot(index);
                 btn.id = `tab-${index}`;
                 
-                // Show simple Slot_ID with Icon
                 btn.innerHTML = `
-                    <div class="icon-box"><i class="fa-solid fa-location-dot"></i></div>
-                    <span class="text-lg">${item.Slot_ID || 'Unknown'}</span>
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold text-lg truncate slot-text">${item.Slot_ID || 'Unknown'}</span>
+                        <i class="fa-solid fa-chevron-right text-gray-300 transition-transform icon-arrow"></i>
+                    </div>
                 `;
                 container.appendChild(btn);
             });
