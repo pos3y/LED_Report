@@ -11,14 +11,21 @@
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;700&display=swap" rel="stylesheet">
     
     <style>
-        body { font-family: 'Sarabun', sans-serif; background-color: #f3f4f6; }
-        /* Style ปุ่มเลือก Slot แบบใหม่ (Compact) */
+        body { font-family: 'Sarabun', sans-serif; background-color: #f8fafc; } /* พื้นหลังเว็บอ่อนลง */
+        
+        /* --- BUTTON STYLE (Original but Compact) --- */
         .tab-btn {
-            @apply border border-gray-200 bg-white text-gray-600 hover:border-emerald-400 hover:text-emerald-600 transition-all duration-200;
+            @apply border border-gray-200 bg-white text-gray-500 hover:border-emerald-400 hover:text-emerald-600 transition-all duration-200 p-3 rounded-lg text-left shadow-sm;
         }
         .tab-btn.active {
             @apply bg-emerald-600 text-white border-emerald-600 shadow-md transform scale-105;
         }
+        .tab-btn .btn-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .tab-btn.active .icon-arrow { color: #a7f3d0; }
         
         .hidden { display: none !important; }
         #loading { position: fixed; inset: 0; background: white; z-index: 999; display: flex; justify-content: center; align-items: center; flex-direction: column; }
@@ -34,12 +41,10 @@
             .shadow-sm, .shadow-lg { box-shadow: none !important; border: 1px solid #ddd !important; }
         }
 
-        /* --- MAP STYLES --- */
+        /* --- MAP STYLES (Softer Colors) --- */
         .store-grid {
             display: grid;
-            /* Columns: ML/MR | GF2 | Zone1 | Gap | Zone2 | Gap | Zone3 | Gap | Zone4 | Pad */
             grid-template-columns: 50px 30px 180px 30px 180px 30px 180px 30px 180px 20px;
-            /* Rows: WL | Gap | Row1 | Gap | Row2 | Gap | Row3(Cashier) | GapSmall | Bottom(CS) | Outside */
             grid-template-rows: 40px 30px 70px 30px 70px 30px 80px 20px 40px 40px;
             gap: 2px;
             position: relative;
@@ -47,10 +52,11 @@
             margin: 0 auto;
         }
 
+        /* พื้นหลังร้าน (สีเทาอ่อนลง) */
         .store-bg {
             grid-column: 2 / -1;
             grid-row: 1 / 10;
-            background-color: #9ca3af;
+            background-color: #cbd5e1; /* Slate-300 (อ่อนลงจากเดิม) */
             border-radius: 20px;
             z-index: 0;
         }
@@ -58,16 +64,17 @@
         .office-bg {
             grid-column: 9 / span 2;
             grid-row: 1 / span 5;
-            background-color: #d1d5db;
+            background-color: #e2e8f0; /* Slate-200 */
             border-top-right-radius: 20px;
             border-bottom-left-radius: 20px;
-            opacity: 0.5;
+            opacity: 0.6;
             z-index: 0;
         }
 
+        /* กล่อง Slot (สีนุ่มขึ้น) */
         .slot-box {
-            background-color: #4b5563;
-            border: 1px solid #374151;
+            background-color: #64748b; /* Slate-500 */
+            border: 1px solid #475569;
             border-radius: 4px;
             display: flex; align-items: center; justify-content: center;
             font-size: 8px; color: white; font-weight: bold;
@@ -80,17 +87,18 @@
             grid-template-rows: 1fr 1fr;
             grid-template-columns: 1fr 1fr 1fr;
             gap: 2px;
-            background-color: #d1d5db;
+            background-color: #e2e8f0; /* พื้นหลัง G อ่อนลง */
             padding: 3px;
             border-radius: 4px;
             z-index: 10;
         }
         
+        /* ช่องย่อย G (สีนุ่มขึ้น) */
         .g-slot {
-            background-color: #6b7280;
+            background-color: #94a3b8; /* Slate-400 */
             border-radius: 2px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 6px; color: white; 
+            font-size: 6px; color: white;
             cursor: pointer; transition: all 0.2s;
             overflow: hidden; white-space: nowrap;
         }
@@ -111,16 +119,16 @@
         }
 
         .cashier-box { 
-            background-color: #d1d5db; 
-            border: 2px solid #9ca3af; 
+            background-color: #e2e8f0; 
+            border: 2px solid #94a3b8; 
             border-radius: 8px; 
-            color: #4b5563; 
+            color: #475569; 
             font-weight: bold; 
             display: flex; align-items: center; justify-content: center; 
             z-index: 10; font-size: 10px; 
         }
         
-        .outside-box { background-color: #64748b; border-color: #475569; }
+        .outside-box { background-color: #94a3b8; border-color: #64748b; }
         .vertical-text { writing-mode: vertical-rl; text-orientation: mixed; transform: rotate(180deg); }
         .move-up { transform: translateY(-30px); }
     </style>
@@ -166,7 +174,7 @@
             <div class="animate-fade-in">
                 
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                    <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-gray-800">
+                    <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-gray-500">
                         <div class="text-gray-400 text-xs uppercase font-bold">Slot ID</div>
                         <div class="text-xl font-bold text-gray-800 mt-1 truncate" id="val-slot">--</div>
                     </div>
@@ -228,22 +236,22 @@
                             <div id="ML" class="slot-box outside-box col-start-1 row-start-1 row-span-2 w-full">ML</div>
                             <div id="MR" class="slot-box outside-box col-start-1 row-start-8 row-span-2 w-full">MR</div>
 
-                            <div class="col-start-3 col-span-7 row-start-1 flex gap-1 h-8 mt-2 z-10">
-                                <div id="WL1" class="slot-box flex-1">WL1</div>
-                                <div id="WL2" class="slot-box flex-1">WL2</div>
-                                <div id="WL3" class="slot-box flex-1">WL3</div>
-                                <div id="WL4" class="slot-box flex-1">WL4</div>
-                                <div id="WL5" class="slot-box flex-1">WL5</div>
-                                <div id="WL6" class="slot-box flex-1">WL6</div>
-                                <div id="WL7" class="slot-box flex-1">WL7</div>
-                                <div id="WL8" class="slot-box flex-1">WL8</div>
-                            </div>
+                            <div class="col-start-3 col-span-7 row-start-1 flex gap-1 h-8 mt-2 z-10 justify-start">
+                                <div id="WL1" class="slot-box w-16">WL1</div>
+                                <div id="WL2" class="slot-box w-16">WL2</div>
+                                <div id="WL3" class="slot-box w-16">WL3</div>
+                                <div id="WL4" class="slot-box w-16">WL4</div>
+                                <div id="WL5" class="slot-box w-16">WL5</div>
+                                <div id="WL6" class="slot-box w-16">WL6</div>
+                                <div id="WL7" class="slot-box w-16">WL7</div>
+                                <div id="WL8" class="slot-box w-16">WL8</div>
+                                </div>
 
                             <div class="col-start-3 row-start-3 g-container move-up">
                                 <div id="GL1-F" class="g-slot">GL1-F</div> <div id="GL1-M" class="g-slot">GL1-M</div> <div id="GL1-B" class="g-slot">GL1-B</div>
                                 <div id="GR1-F" class="g-slot">GR1-F</div> <div id="GR1-M" class="g-slot">GR1-M</div> <div id="GR1-B" class="g-slot">GR1-B</div>
                             </div>
-                            <div id="GF2" class="col-start-2 row-start-5 slot-box writing-vertical text-[8px] h-full move-up">GF2</div>
+                            <div id="GF2" class="col-start-2 row-start-5 slot-box writing-vertical text-[8px] h-full move-up" style="background-color: #94a3b8; border-color: #64748b;">GF2</div>
                             <div class="col-start-3 row-start-5 g-container move-up">
                                 <div id="GL2-F" class="g-slot">GL2-F</div> <div id="GL2-M" class="g-slot">GL2-M</div> <div id="GL2-B" class="g-slot">GL2-B</div>
                                 <div id="GR2-F" class="g-slot">GR2-F</div> <div id="GR2-M" class="g-slot">GR2-M</div> <div id="GR2-B" class="g-slot">GR2-B</div>
@@ -418,12 +426,18 @@
             container.innerHTML = '';
             currentSlots.forEach((item, index) => {
                 const btn = document.createElement('button');
-                // ปรับปุ่มให้ Compact (p-3)
-                btn.className = `tab-btn p-3 rounded-lg border text-left w-full flex items-center justify-center font-bold text-sm md:text-base`;
+                // Compact "Original" Style
+                btn.className = `tab-btn`;
                 btn.onclick = () => loadSlot(index);
                 btn.id = `tab-${index}`;
-                // โชว์แค่ Slot_ID ตามที่ขอ
-                btn.innerText = item.Slot_ID || 'Unknown Slot';
+                
+                // Show only Slot_ID (Client friendly name)
+                btn.innerHTML = `
+                    <div class="btn-content">
+                        <span class="font-bold text-sm truncate">${item.Slot_ID || 'Unknown'}</span>
+                        <i class="fa-solid fa-chevron-right text-xs icon-arrow"></i>
+                    </div>
+                `;
                 container.appendChild(btn);
             });
         }
@@ -433,6 +447,7 @@
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById(`tab-${index}`).classList.add('active');
 
+            // Metrics Update
             document.getElementById('val-slot').innerText = currentSlotData.Slot_ID;
             document.getElementById('val-imp').innerText = cleanNumber(currentSlotData.Impression).toLocaleString();
             document.getElementById('val-hr').innerText = currentSlotData.Hours || '-';
@@ -454,7 +469,7 @@
             const shelfUrl = convertDriveLink(currentSlotData.Shelf_Photo_URL);
             shelfImg.src = shelfUrl || "https://placehold.co/600x400?text=No+Shelf+Photo";
 
-            // ใช้ Slot_Name ในการ Map
+            // Map Highlight using Slot_Name (System ID)
             updateMapHighlight(currentSlotData.Slot_Name);
         }
 
