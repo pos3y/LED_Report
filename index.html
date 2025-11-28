@@ -12,7 +12,14 @@
     
     <style>
         body { font-family: 'Sarabun', sans-serif; background-color: #f3f4f6; }
-        .tab-btn.active { background-color: #065f46; color: white; border-color: #065f46; }
+        /* Style ปุ่มเลือก Slot แบบใหม่ (Compact) */
+        .tab-btn {
+            @apply border border-gray-200 bg-white text-gray-600 hover:border-emerald-400 hover:text-emerald-600 transition-all duration-200;
+        }
+        .tab-btn.active {
+            @apply bg-emerald-600 text-white border-emerald-600 shadow-md transform scale-105;
+        }
+        
         .hidden { display: none !important; }
         #loading { position: fixed; inset: 0; background: white; z-index: 999; display: flex; justify-content: center; align-items: center; flex-direction: column; }
         iframe { width: 100%; height: 100%; }
@@ -30,11 +37,14 @@
         /* --- MAP STYLES --- */
         .store-grid {
             display: grid;
+            /* Columns: ML/MR | GF2 | Zone1 | Gap | Zone2 | Gap | Zone3 | Gap | Zone4 | Pad */
             grid-template-columns: 50px 30px 180px 30px 180px 30px 180px 30px 180px 20px;
+            /* Rows: WL | Gap | Row1 | Gap | Row2 | Gap | Row3(Cashier) | GapSmall | Bottom(CS) | Outside */
             grid-template-rows: 40px 30px 70px 30px 70px 30px 80px 20px 40px 40px;
             gap: 2px;
             position: relative;
-            background-color: transparent; /* โปร่งใสเพื่อให้เห็นพื้นหลัง */
+            width: fit-content;
+            margin: 0 auto;
         }
 
         .store-bg {
@@ -60,7 +70,7 @@
             border: 1px solid #374151;
             border-radius: 4px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 8px; color: white; font-weight: bold; /* ลดขนาดฟอนต์ */
+            font-size: 8px; color: white; font-weight: bold;
             cursor: pointer; transition: all 0.2s; z-index: 10;
             overflow: hidden; text-align: center;
         }
@@ -80,7 +90,7 @@
             background-color: #6b7280;
             border-radius: 2px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 6px; color: white; /* ฟอนต์จิ๋วเพื่อให้ใส่รหัสเต็มได้ */
+            font-size: 6px; color: white; 
             cursor: pointer; transition: all 0.2s;
             overflow: hidden; white-space: nowrap;
         }
@@ -100,7 +110,16 @@
             100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
         }
 
-        .cashier-box { background-color: #d1d5db; border: 2px solid #9ca3af; border-radius: 8px; color: #4b5563; font-weight: bold; display: flex; align-items: center; justify-content: center; z-index: 10; font-size: 10px; }
+        .cashier-box { 
+            background-color: #d1d5db; 
+            border: 2px solid #9ca3af; 
+            border-radius: 8px; 
+            color: #4b5563; 
+            font-weight: bold; 
+            display: flex; align-items: center; justify-content: center; 
+            z-index: 10; font-size: 10px; 
+        }
+        
         .outside-box { background-color: #64748b; border-color: #475569; }
         .vertical-text { writing-mode: vertical-rl; text-orientation: mixed; transform: rotate(180deg); }
         .move-up { transform: translateY(-30px); }
@@ -131,7 +150,7 @@
                     <i class="fa-solid fa-calendar-days text-emerald-600"></i>
                     <select id="monthSelector" class="bg-transparent font-bold text-gray-700 outline-none cursor-pointer" onchange="changeMonth()"></select>
                 </div>
-                </div>
+            </div>
         </div>
     </header>
 
@@ -141,15 +160,15 @@
         <div id="main-content" class="hidden">
             <div class="mb-8">
                 <h2 class="text-gray-500 text-sm mb-3 font-semibold uppercase tracking-wider">Select Slot</h2>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="tab-container"></div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3" id="tab-container"></div>
             </div>
 
             <div class="animate-fade-in">
                 
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                     <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-gray-800">
-                        <div class="text-gray-400 text-xs uppercase font-bold">Slot Name</div>
-                        <div class="text-2xl font-bold text-gray-800 mt-1 truncate" id="val-slot">--</div>
+                        <div class="text-gray-400 text-xs uppercase font-bold">Slot ID</div>
+                        <div class="text-xl font-bold text-gray-800 mt-1 truncate" id="val-slot">--</div>
                     </div>
                     <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-emerald-500">
                         <div class="text-gray-400 text-xs uppercase font-bold">Impression</div>
@@ -166,7 +185,6 @@
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                    
                     <div class="bg-white p-4 rounded-xl shadow-sm flex flex-col h-full">
                         <div class="flex justify-between items-center mb-3">
                             <h3 class="font-bold text-gray-700"><i class="fa-solid fa-play-circle text-emerald-600 mr-2"></i>Media Preview (สื่อโฆษณา)</h3>
@@ -195,7 +213,7 @@
                     </div>
                 </div>
 
-                <div class="bg-white p-6 rounded-xl shadow-sm break-inside-avoid">
+                <div class="bg-white p-6 rounded-xl shadow-sm break-inside-avoid overflow-hidden">
                     <div class="flex items-center gap-2 mb-4 border-b border-gray-100 pb-2">
                         <i class="fa-solid fa-map-location-dot text-emerald-600 text-xl"></i>
                         <h3 class="font-bold text-gray-700 text-lg">Store Map Overview (ผังร้านค้า)</h3>
@@ -225,12 +243,12 @@
                                 <div id="GL1-F" class="g-slot">GL1-F</div> <div id="GL1-M" class="g-slot">GL1-M</div> <div id="GL1-B" class="g-slot">GL1-B</div>
                                 <div id="GR1-F" class="g-slot">GR1-F</div> <div id="GR1-M" class="g-slot">GR1-M</div> <div id="GR1-B" class="g-slot">GR1-B</div>
                             </div>
-                            <div id="G2F" class="col-start-2 row-start-5 slot-box bg-emerald-600 border-emerald-500 writing-vertical text-[8px] h-full move-up">G2F</div>
+                            <div id="GF2" class="col-start-2 row-start-5 slot-box writing-vertical text-[8px] h-full move-up">GF2</div>
                             <div class="col-start-3 row-start-5 g-container move-up">
                                 <div id="GL2-F" class="g-slot">GL2-F</div> <div id="GL2-M" class="g-slot">GL2-M</div> <div id="GL2-B" class="g-slot">GL2-B</div>
                                 <div id="GR2-F" class="g-slot">GR2-F</div> <div id="GR2-M" class="g-slot">GR2-M</div> <div id="GR2-B" class="g-slot">GR2-B</div>
                             </div>
-                            <div id="CASHIER" class="col-start-3 row-start-7 cashier-box mb-2">CASHIER</div>
+                            <div id="CASHIER" class="col-start-3 row-start-7 row-span-2 cashier-box h-full" style="align-self: stretch;">CASHIER</div>
 
                             <div class="col-start-5 row-start-3 g-container">
                                 <div id="GL3-F" class="g-slot">GL3-F</div> <div id="GL3-M" class="g-slot">GL3-M</div> <div id="GL3-B" class="g-slot">GL3-B</div>
@@ -289,7 +307,7 @@
 
     <script>
         // ==========================================
-        //  CSV Link ของคุณ
+        //  CSV Link
         // ==========================================
         const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRPt5_VqUQSurUF8zod1Ns67QBSMvPhFwpuwvniE8wzX3dDOrXyxClrDywMwMnkaJ-Ite1M3DlLeTZt/pub?output=csv"; 
         // ==========================================
@@ -336,7 +354,6 @@
             const urlParams = new URLSearchParams(window.location.search);
             const brandID = urlParams.get('brand');
             if (!brandID) { showError("Error: No Brand ID specified in URL."); return; }
-            // ยังไม่โชว์ Title จนกว่าจะโหลด
             document.getElementById('brand-title').innerText = "Loading...";
             fetchData(brandID);
         };
@@ -401,11 +418,12 @@
             container.innerHTML = '';
             currentSlots.forEach((item, index) => {
                 const btn = document.createElement('button');
-                btn.className = `tab-btn p-4 rounded-xl border-2 border-gray-200 bg-white hover:border-emerald-400 transition text-left w-full`;
+                // ปรับปุ่มให้ Compact (p-3)
+                btn.className = `tab-btn p-3 rounded-lg border text-left w-full flex items-center justify-center font-bold text-sm md:text-base`;
                 btn.onclick = () => loadSlot(index);
                 btn.id = `tab-${index}`;
-                // ใช้ Slot_ID แสดงผล
-                btn.innerHTML = `<div class="font-bold text-lg">${item.Slot_ID}</div><div class="text-sm text-gray-400 mt-1">${item.Slot_Name || 'Display Slot'}</div>`;
+                // โชว์แค่ Slot_ID ตามที่ขอ
+                btn.innerText = item.Slot_ID || 'Unknown Slot';
                 container.appendChild(btn);
             });
         }
@@ -415,13 +433,11 @@
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById(`tab-${index}`).classList.add('active');
 
-            // Metrics Update
             document.getElementById('val-slot').innerText = currentSlotData.Slot_ID;
             document.getElementById('val-imp').innerText = cleanNumber(currentSlotData.Impression).toLocaleString();
             document.getElementById('val-hr').innerText = currentSlotData.Hours || '-';
             document.getElementById('val-dur').innerText = currentSlotData.Media_Duration || '-';
 
-            // Media
             const vdo = document.getElementById('main-video');
             const yt = document.getElementById('youtube-frame');
             const img = document.getElementById('main-image');
@@ -434,13 +450,11 @@
             else if (mediaData.type === 'video' || mediaData.type === 'drive') { vdo.src = mediaData.url; vdo.classList.remove('hidden'); vdo.onerror = () => { vdo.classList.add('hidden'); img.src = mediaData.url; img.classList.remove('hidden'); }; }
             else { img.src = mediaData.url; img.classList.remove('hidden'); }
 
-            // Shelf Photo
             const shelfImg = document.getElementById('shelf-display-img');
             const shelfUrl = convertDriveLink(currentSlotData.Shelf_Photo_URL);
             shelfImg.src = shelfUrl || "https://placehold.co/600x400?text=No+Shelf+Photo";
 
-            // *** UPDATE HIGHLIGHT LOGIC ***
-            // ใช้ Slot_Name จาก Sheet มา Map กับ ID ใน HTML
+            // ใช้ Slot_Name ในการ Map
             updateMapHighlight(currentSlotData.Slot_Name);
         }
 
