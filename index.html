@@ -17,81 +17,100 @@
         #loading { position: fixed; inset: 0; background: white; z-index: 999; display: flex; justify-content: center; align-items: center; flex-direction: column; }
         iframe { width: 100%; height: 100%; }
 
-        /* --- CSS STORE MAP (หัวใจสำคัญของระบบแผนผัง) --- */
+        /* PRINT STYLES */
+        @media print {
+            button, select, .no-print, #loading, #error-msg, .tab-btn:not(.active) { display: none !important; }
+            .bg-gray-50 { border: none !important; background: none !important; }
+            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; background-color: white !important; }
+            @page { size: landscape; margin: 0.5cm; }
+            .container { max-width: 100% !important; width: 100% !important; padding: 0 !important; }
+            .shadow-sm, .shadow-lg { box-shadow: none !important; border: 1px solid #ddd !important; }
+        }
+
+        /* --- MAP STYLES --- */
         .store-grid {
             display: grid;
-            grid-template-columns: repeat(12, 1fr); /* แบ่งแนวนอน 12 ช่อง */
-            grid-template-rows: repeat(10, 1fr);    /* แบ่งแนวตั้ง 10 ช่อง */
-            gap: 4px;
-            background-color: #e5e7eb; /* สีพื้นหลังแผนผัง */
-            padding: 10px;
-            border-radius: 8px;
-            aspect-ratio: 16/9; /* บังคับสัดส่วนแผนผัง */
+            grid-template-columns: 50px 30px 180px 30px 180px 30px 180px 30px 180px 20px;
+            grid-template-rows: 40px 30px 70px 30px 70px 30px 80px 20px 40px 40px;
+            gap: 2px;
             position: relative;
+            background-color: transparent; /* โปร่งใสเพื่อให้เห็นพื้นหลัง */
         }
 
-        /* กล่อง Slot ทั่วไป */
+        .store-bg {
+            grid-column: 2 / -1;
+            grid-row: 1 / 10;
+            background-color: #9ca3af;
+            border-radius: 20px;
+            z-index: 0;
+        }
+
+        .office-bg {
+            grid-column: 9 / span 2;
+            grid-row: 1 / span 5;
+            background-color: #d1d5db;
+            border-top-right-radius: 20px;
+            border-bottom-left-radius: 20px;
+            opacity: 0.5;
+            z-index: 0;
+        }
+
         .slot-box {
-            background-color: #9ca3af; /* สีเทาปกติ */
-            border: 1px solid #6b7280;
+            background-color: #4b5563;
+            border: 1px solid #374151;
             border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 8px;
-            color: white;
-            font-weight: bold;
-            cursor: default;
-            transition: all 0.3s;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 8px; color: white; font-weight: bold; /* ลดขนาดฟอนต์ */
+            cursor: pointer; transition: all 0.2s; z-index: 10;
+            overflow: hidden; text-align: center;
         }
-
-        /* G-Unit (กลุ่มเชลฟ์กลางร้าน) */
+        
         .g-container {
             display: grid;
-            grid-template-rows: 1fr 1fr; /* บน(L) / ล่าง(R) */
-            grid-template-columns: 1fr 1fr 1fr; /* F / M / B */
+            grid-template-rows: 1fr 1fr;
+            grid-template-columns: 1fr 1fr 1fr;
             gap: 2px;
             background-color: #d1d5db;
-            padding: 2px;
+            padding: 3px;
             border-radius: 4px;
+            z-index: 10;
         }
+        
         .g-slot {
             background-color: #6b7280;
             border-radius: 2px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 6px;
-            color: #d1d5db;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 6px; color: white; /* ฟอนต์จิ๋วเพื่อให้ใส่รหัสเต็มได้ */
+            cursor: pointer; transition: all 0.2s;
+            overflow: hidden; white-space: nowrap;
         }
 
-        /* สถานะ Active (เมื่อถูกเลือกจาก Sheet) */
         .active-slot-highlight {
-            background-color: #ef4444 !important; /* สีแดง */
-            box-shadow: 0 0 10px #ef4444;
+            background-color: #ef4444 !important;
+            box-shadow: 0 0 15px #ef4444;
             transform: scale(1.1);
-            z-index: 10;
+            z-index: 50;
             color: white !important;
-            animation: pulse-red 2s infinite;
+            animation: pulse-red 1.5s infinite;
+            border: 1px solid white;
         }
-        
         @keyframes pulse-red {
             0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-            70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+            70% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
             100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
         }
 
-        /* Text Labels บนแผนผัง */
-        .map-label { font-size: 10px; color: #6b7280; font-weight: bold; display: flex; align-items: center; justify-content: center; text-orientation: sideways; }
-        .vertical-text { writing-mode: vertical-rl; text-orientation: mixed; }
-
+        .cashier-box { background-color: #d1d5db; border: 2px solid #9ca3af; border-radius: 8px; color: #4b5563; font-weight: bold; display: flex; align-items: center; justify-content: center; z-index: 10; font-size: 10px; }
+        .outside-box { background-color: #64748b; border-color: #475569; }
+        .vertical-text { writing-mode: vertical-rl; text-orientation: mixed; transform: rotate(180deg); }
+        .move-up { transform: translateY(-30px); }
     </style>
 </head>
 <body>
 
     <div id="loading">
         <i class="fa-solid fa-circle-notch fa-spin text-4xl text-emerald-600 mb-4"></i>
-        <p class="text-gray-500">Building Store Map...</p>
+        <p class="text-gray-500">Connecting to Database...</p>
     </div>
 
     <header class="bg-white shadow-sm sticky top-0 z-50">
@@ -106,10 +125,13 @@
                     <p class="text-sm text-gray-500">Monthly Performance Report</p>
                 </div>
             </div>
-            <div class="flex items-center gap-2 bg-gray-50 border border-gray-200 px-3 py-2 rounded-lg">
-                <i class="fa-solid fa-calendar-days text-emerald-600"></i>
-                <select id="monthSelector" class="bg-transparent font-bold text-gray-700 outline-none cursor-pointer" onchange="changeMonth()"></select>
-            </div>
+            
+            <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 bg-gray-50 border border-gray-200 px-3 py-2 rounded-lg">
+                    <i class="fa-solid fa-calendar-days text-emerald-600"></i>
+                    <select id="monthSelector" class="bg-transparent font-bold text-gray-700 outline-none cursor-pointer" onchange="changeMonth()"></select>
+                </div>
+                </div>
         </div>
     </header>
 
@@ -123,10 +145,11 @@
             </div>
 
             <div class="animate-fade-in">
+                
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                     <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-gray-800">
-                        <div class="text-gray-400 text-xs uppercase font-bold">Slot ID</div>
-                        <div class="text-2xl font-bold text-gray-800 mt-1" id="val-slot">--</div>
+                        <div class="text-gray-400 text-xs uppercase font-bold">Slot Name</div>
+                        <div class="text-2xl font-bold text-gray-800 mt-1 truncate" id="val-slot">--</div>
                     </div>
                     <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-emerald-500">
                         <div class="text-gray-400 text-xs uppercase font-bold">Impression</div>
@@ -143,19 +166,31 @@
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    
                     <div class="bg-white p-4 rounded-xl shadow-sm flex flex-col h-full">
-                        <h3 class="font-bold text-gray-700 mb-3"><i class="fa-solid fa-play-circle text-emerald-600 mr-2"></i>Media Preview</h3>
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="font-bold text-gray-700"><i class="fa-solid fa-play-circle text-emerald-600 mr-2"></i>Media Preview (สื่อโฆษณา)</h3>
+                        </div>
                         <div class="aspect-video bg-black rounded-lg overflow-hidden flex items-center justify-center relative group">
                             <video id="main-video" class="w-full h-full object-contain hidden" controls autoplay muted loop playsinline><source src="" type="video/mp4"></video>
                             <iframe id="youtube-frame" class="hidden" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
                             <img id="main-image" class="w-full h-full object-contain hidden" src="">
-                            <div class="mt-2 text-xs text-gray-400 text-center truncate absolute bottom-0 w-full bg-black/50 p-1" id="media-source-text"></div>
+                            <div id="media-loader" class="absolute inset-0 flex items-center justify-center bg-gray-900 text-white flex-col hidden">
+                                <i class="fa-solid fa-circle-notch fa-spin text-2xl"></i>
+                            </div>
                         </div>
+                        <div class="mt-2 text-xs text-gray-400 text-center truncate" id="media-source-text"></div>
                     </div>
+
                     <div class="bg-white p-4 rounded-xl shadow-sm flex flex-col h-full">
-                        <h3 class="font-bold text-gray-700 mb-3"><i class="fa-solid fa-camera text-emerald-600 mr-2"></i>Shelf Photo</h3>
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="font-bold text-gray-700"><i class="fa-solid fa-camera text-emerald-600 mr-2"></i>Shelf Photo (รูปถ่ายหน้างาน)</h3>
+                        </div>
                         <div class="relative bg-gray-100 rounded-lg overflow-hidden flex-1 min-h-[300px]">
                             <img id="shelf-display-img" src="" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/600x400?text=No+Shelf+Photo'">
+                            <div class="absolute bottom-4 right-4 bg-black/70 text-white text-xs px-3 py-1 rounded-full backdrop-blur-sm">
+                                <i class="fa-solid fa-check-circle mr-1 text-green-400"></i> Active Location
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -163,86 +198,87 @@
                 <div class="bg-white p-6 rounded-xl shadow-sm break-inside-avoid">
                     <div class="flex items-center gap-2 mb-4 border-b border-gray-100 pb-2">
                         <i class="fa-solid fa-map-location-dot text-emerald-600 text-xl"></i>
-                        <h3 class="font-bold text-gray-700 text-lg">Live Store Map (แผนผังร้านอัจฉริยะ)</h3>
+                        <h3 class="font-bold text-gray-700 text-lg">Store Map Overview (ผังร้านค้า)</h3>
                     </div>
                     
-                    <div class="w-full max-w-4xl mx-auto">
+                    <div class="w-full overflow-x-auto flex justify-center">
                         <div class="store-grid">
                             
-                            <div class="col-span-12 flex gap-1 mb-2">
-                                <div id="WL1" class="slot-box flex-1 h-8">WL1</div>
-                                <div id="WL2" class="slot-box flex-1 h-8">WL2</div>
-                                <div id="WL3" class="slot-box flex-1 h-8">WL3</div>
-                                <div id="WL4" class="slot-box flex-1 h-8">WL4</div>
-                                <div id="WL5" class="slot-box flex-1 h-8">WL5</div>
-                                <div id="WL6" class="slot-box flex-1 h-8">WL6</div>
-                                <div id="WL7" class="slot-box flex-1 h-8">WL7</div>
-                                <div id="WL8" class="slot-box flex-1 h-8">WL8</div>
-                                <div class="flex-[2]"></div> </div>
+                            <div class="store-bg"></div>
+                            <div class="office-bg"></div>
 
-                            <div class="col-start-2 col-span-2 row-start-3 g-container" title="G1 Group">
-                                <div id="G1L-F" class="g-slot" title="G1L-F">LF</div>
-                                <div id="G1L-M" class="g-slot" title="G1L-M">LM</div>
-                                <div id="G1L-B" class="g-slot" title="G1L-B">LB</div>
-                                <div id="G1R-F" class="g-slot" title="G1R-F">RF</div>
-                                <div id="G1R-M" class="g-slot" title="G1R-M">RM</div>
-                                <div id="G1R-B" class="g-slot" title="G1R-B">RB</div>
+                            <div id="ML" class="slot-box outside-box col-start-1 row-start-1 row-span-2 w-full">ML</div>
+                            <div id="MR" class="slot-box outside-box col-start-1 row-start-8 row-span-2 w-full">MR</div>
+
+                            <div class="col-start-3 col-span-7 row-start-1 flex gap-1 h-8 mt-2 z-10">
+                                <div id="WL1" class="slot-box flex-1">WL1</div>
+                                <div id="WL2" class="slot-box flex-1">WL2</div>
+                                <div id="WL3" class="slot-box flex-1">WL3</div>
+                                <div id="WL4" class="slot-box flex-1">WL4</div>
+                                <div id="WL5" class="slot-box flex-1">WL5</div>
+                                <div id="WL6" class="slot-box flex-1">WL6</div>
+                                <div id="WL7" class="slot-box flex-1">WL7</div>
+                                <div id="WL8" class="slot-box flex-1">WL8</div>
                             </div>
 
-                            <div class="col-start-5 col-span-2 row-start-3 g-container" title="G3 Group">
-                                <div id="G3L-F" class="g-slot"></div><div id="G3L-M" class="g-slot"></div><div id="G3L-B" class="g-slot"></div>
-                                <div id="G3R-F" class="g-slot"></div><div id="G3R-M" class="g-slot"></div><div id="G3R-B" class="g-slot"></div>
+                            <div class="col-start-3 row-start-3 g-container move-up">
+                                <div id="GL1-F" class="g-slot">GL1-F</div> <div id="GL1-M" class="g-slot">GL1-M</div> <div id="GL1-B" class="g-slot">GL1-B</div>
+                                <div id="GR1-F" class="g-slot">GR1-F</div> <div id="GR1-M" class="g-slot">GR1-M</div> <div id="GR1-B" class="g-slot">GR1-B</div>
+                            </div>
+                            <div id="G2F" class="col-start-2 row-start-5 slot-box bg-emerald-600 border-emerald-500 writing-vertical text-[8px] h-full move-up">G2F</div>
+                            <div class="col-start-3 row-start-5 g-container move-up">
+                                <div id="GL2-F" class="g-slot">GL2-F</div> <div id="GL2-M" class="g-slot">GL2-M</div> <div id="GL2-B" class="g-slot">GL2-B</div>
+                                <div id="GR2-F" class="g-slot">GR2-F</div> <div id="GR2-M" class="g-slot">GR2-M</div> <div id="GR2-B" class="g-slot">GR2-B</div>
+                            </div>
+                            <div id="CASHIER" class="col-start-3 row-start-7 cashier-box mb-2">CASHIER</div>
+
+                            <div class="col-start-5 row-start-3 g-container">
+                                <div id="GL3-F" class="g-slot">GL3-F</div> <div id="GL3-M" class="g-slot">GL3-M</div> <div id="GL3-B" class="g-slot">GL3-B</div>
+                                <div id="GR3-F" class="g-slot">GR3-F</div> <div id="GR3-M" class="g-slot">GR3-M</div> <div id="GR3-B" class="g-slot">GR3-B</div>
+                            </div>
+                            <div class="col-start-5 row-start-5 g-container">
+                                <div id="GL4-F" class="g-slot">GL4-F</div> <div id="GL4-M" class="g-slot">GL4-M</div> <div id="GL4-B" class="g-slot">GL4-B</div>
+                                <div id="GR4-F" class="g-slot">GR4-F</div> <div id="GR4-M" class="g-slot">GR4-M</div> <div id="GR4-B" class="g-slot">GR4-B</div>
+                            </div>
+                            <div class="col-start-5 row-start-7 g-container">
+                                <div id="GL5-F" class="g-slot">GL5-F</div> <div id="GL5-M" class="g-slot">GL5-M</div> <div id="GL5-B" class="g-slot">GL5-B</div>
+                                <div id="GR5-F" class="g-slot">GR5-F</div> <div id="GR5-M" class="g-slot">GR5-M</div> <div id="GR5-B" class="g-slot">GR5-B</div>
                             </div>
 
-                            <div class="col-start-8 col-span-2 row-start-3 g-container" title="G6 Group">
-                                <div id="G6L-F" class="g-slot"></div><div id="G6L-M" class="g-slot"></div><div id="G6L-B" class="g-slot"></div>
-                                <div id="G6R-F" class="g-slot"></div><div id="G6R-M" class="g-slot"></div><div id="G6R-B" class="g-slot"></div>
+                            <div class="col-start-7 row-start-3 g-container">
+                                <div id="GL6-F" class="g-slot">GL6-F</div> <div id="GL6-M" class="g-slot">GL6-M</div> <div id="GL6-B" class="g-slot">GL6-B</div>
+                                <div id="GR6-F" class="g-slot">GR6-F</div> <div id="GR6-M" class="g-slot">GR6-M</div> <div id="GR6-B" class="g-slot">GR6-B</div>
+                            </div>
+                            <div class="col-start-7 row-start-5 g-container">
+                                <div id="GL7-F" class="g-slot">GL7-F</div> <div id="GL7-M" class="g-slot">GL7-M</div> <div id="GL7-B" class="g-slot">GL7-B</div>
+                                <div id="GR7-F" class="g-slot">GR7-F</div> <div id="GR7-M" class="g-slot">GR7-M</div> <div id="GR7-B" class="g-slot">GR7-B</div>
+                            </div>
+                            <div class="col-start-7 row-start-7 g-container">
+                                <div id="GL8-F" class="g-slot">GL8-F</div> <div id="GL8-M" class="g-slot">GL8-M</div> <div id="GL8-B" class="g-slot">GL8-B</div>
+                                <div id="GR8-F" class="g-slot">GR8-F</div> <div id="GR8-M" class="g-slot">GR8-M</div> <div id="GR8-B" class="g-slot">GR8-B</div>
                             </div>
 
-                            <div class="col-start-2 col-span-2 row-start-5 g-container" title="G2 Group">
-                                <div id="G2L-F" class="g-slot"></div><div id="G2L-M" class="g-slot"></div><div id="G2L-B" class="g-slot"></div>
-                                <div id="G2R-F" class="g-slot"></div><div id="G2R-M" class="g-slot"></div><div id="G2R-B" class="g-slot"></div>
+                            <div class="col-start-9 row-start-7 g-container">
+                                <div id="GL9-F" class="g-slot">GL9-F</div> <div id="GL9-M" class="g-slot">GL9-M</div> <div id="GL9-B" class="g-slot">GL9-B</div>
+                                <div id="GR9-F" class="g-slot">GR9-F</div> <div id="GR9-M" class="g-slot">GR9-M</div> <div id="GR9-B" class="g-slot">GR9-B</div>
                             </div>
 
-                            <div class="col-start-5 col-span-2 row-start-5 g-container" title="G4 Group">
-                                <div id="G4L-F" class="g-slot"></div><div id="G4L-M" class="g-slot"></div><div id="G4L-B" class="g-slot"></div>
-                                <div id="G4R-F" class="g-slot"></div><div id="G4R-M" class="g-slot"></div><div id="G4R-B" class="g-slot"></div>
+                            <div class="col-start-2 col-span-2 row-start-9 h-8 self-end px-2 z-10 mb-1">
+                                <div id="CS" class="slot-box w-full h-full">CS</div>
+                            </div>
+                            <div class="col-start-5 col-span-5 row-start-9 flex gap-1 h-8 self-end z-10 mb-1 pl-4">
+                                <div id="WR1" class="slot-box flex-1">WR1</div>
+                                <div id="WR2" class="slot-box flex-1">WR2</div>
+                                <div id="WR3" class="slot-box flex-1">WR3</div>
+                                <div id="WR4" class="slot-box flex-1">WR4</div>
+                                <div id="WR5" class="slot-box flex-1">WR5</div>
                             </div>
 
-                            <div class="col-start-8 col-span-2 row-start-5 g-container" title="G7 Group">
-                                <div id="G7L-F" class="g-slot"></div><div id="G7L-M" class="g-slot"></div><div id="G7L-B" class="g-slot"></div>
-                                <div id="G7R-F" class="g-slot"></div><div id="G7R-M" class="g-slot"></div><div id="G7R-B" class="g-slot"></div>
+                            <div class="col-start-2 col-span-2 row-start-10 flex gap-2 h-8 mt-1">
+                                <div id="BBL" class="slot-box outside-box flex-1">BBL</div>
+                                <div id="BBR" class="slot-box outside-box flex-1">BBR</div>
                             </div>
 
-                            <div class="col-start-5 col-span-2 row-start-7 g-container" title="G5 Group">
-                                <div id="G5L-F" class="g-slot"></div><div id="G5L-M" class="g-slot"></div><div id="G5L-B" class="g-slot"></div>
-                                <div id="G5R-F" class="g-slot"></div><div id="G5R-M" class="g-slot"></div><div id="G5R-B" class="g-slot"></div>
-                            </div>
-
-                            <div class="col-start-8 col-span-2 row-start-7 g-container" title="G8 Group">
-                                <div id="G8L-F" class="g-slot"></div><div id="G8L-M" class="g-slot"></div><div id="G8L-B" class="g-slot"></div>
-                                <div id="G8R-F" class="g-slot"></div><div id="G8R-M" class="g-slot"></div><div id="G8R-B" class="g-slot"></div>
-                            </div>
-
-                            <div class="col-start-11 col-span-2 row-start-7 g-container" title="G9 Group">
-                                <div id="G9L-F" class="g-slot"></div><div id="G9L-M" class="g-slot"></div><div id="G9L-B" class="g-slot"></div>
-                                <div id="G9R-F" class="g-slot"></div><div id="G9R-M" class="g-slot"></div><div id="G9R-B" class="g-slot"></div>
-                            </div>
-
-
-                            <div class="col-start-1 row-start-2 bg-gray-500 rounded text-xs text-white flex items-center justify-center writing-vertical">ML</div>
-                            <div class="col-start-1 row-start-8 row-span-2 bg-gray-500 rounded text-xs text-white flex items-center justify-center">MR</div>
-                            <div id="CASHIER" class="col-start-2 col-span-2 row-start-8 row-span-2 bg-gray-400 rounded flex items-center justify-center text-xs font-bold text-gray-600 border border-gray-500">CASHIER</div>
-
-                            <div class="col-start-2 col-span-2 row-start-10 slot-box">CS</div>
-                            <div id="WR1" class="col-start-5 slot-box">WR1</div>
-                            <div id="WR2" class="col-start-6 slot-box">WR2</div>
-                            <div id="WR3" class="col-start-7 slot-box">WR3</div>
-                            <div id="WR4" class="col-start-8 slot-box">WR4</div>
-                            <div id="WR5" class="col-start-9 slot-box">WR5</div>
-
-                            <div class="absolute left-0 top-[40%] -translate-x-full pr-2 vertical-text text-gray-400 font-bold tracking-widest">FRONT</div>
-                            
                         </div>
                     </div>
                 </div>
@@ -253,7 +289,7 @@
 
     <script>
         // ==========================================
-        //  CSV Link (อันเดิม)
+        //  CSV Link ของคุณ
         // ==========================================
         const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRPt5_VqUQSurUF8zod1Ns67QBSMvPhFwpuwvniE8wzX3dDOrXyxClrDywMwMnkaJ-Ite1M3DlLeTZt/pub?output=csv"; 
         // ==========================================
@@ -300,7 +336,8 @@
             const urlParams = new URLSearchParams(window.location.search);
             const brandID = urlParams.get('brand');
             if (!brandID) { showError("Error: No Brand ID specified in URL."); return; }
-            document.getElementById('brand-title').innerText = brandID;
+            // ยังไม่โชว์ Title จนกว่าจะโหลด
+            document.getElementById('brand-title').innerText = "Loading...";
             fetchData(brandID);
         };
 
@@ -313,6 +350,9 @@
 
                     if (filtered.length === 0) { showError("No data found for brand: " + brandID); return; }
 
+                    const brandName = filtered[0].Brand_Name || brandID;
+                    document.getElementById('brand-title').innerText = brandName;
+
                     if (filtered[0].Brand_Logo_URL) {
                         const logoMedia = processMediaLink(filtered[0].Brand_Logo_URL);
                         const logoImg = document.getElementById('header-logo');
@@ -320,9 +360,6 @@
                         logoImg.src = logoMedia.url;
                         logoImg.classList.remove('hidden');
                     }
-
-                    // ใช้ Brand_Name ถ้ามี
-                    if (filtered[0].Brand_Name) document.getElementById('brand-title').innerText = filtered[0].Brand_Name;
 
                     currentBrandData = filtered.reduce((acc, row) => {
                         const month = row.Month.trim();
@@ -367,6 +404,7 @@
                 btn.className = `tab-btn p-4 rounded-xl border-2 border-gray-200 bg-white hover:border-emerald-400 transition text-left w-full`;
                 btn.onclick = () => loadSlot(index);
                 btn.id = `tab-${index}`;
+                // ใช้ Slot_ID แสดงผล
                 btn.innerHTML = `<div class="font-bold text-lg">${item.Slot_ID}</div><div class="text-sm text-gray-400 mt-1">${item.Slot_Name || 'Display Slot'}</div>`;
                 container.appendChild(btn);
             });
@@ -377,13 +415,13 @@
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById(`tab-${index}`).classList.add('active');
 
-            // Metrics
+            // Metrics Update
             document.getElementById('val-slot').innerText = currentSlotData.Slot_ID;
             document.getElementById('val-imp').innerText = cleanNumber(currentSlotData.Impression).toLocaleString();
             document.getElementById('val-hr').innerText = currentSlotData.Hours || '-';
             document.getElementById('val-dur').innerText = currentSlotData.Media_Duration || '-';
 
-            // Media & Shelf Photo
+            // Media
             const vdo = document.getElementById('main-video');
             const yt = document.getElementById('youtube-frame');
             const img = document.getElementById('main-image');
@@ -396,32 +434,27 @@
             else if (mediaData.type === 'video' || mediaData.type === 'drive') { vdo.src = mediaData.url; vdo.classList.remove('hidden'); vdo.onerror = () => { vdo.classList.add('hidden'); img.src = mediaData.url; img.classList.remove('hidden'); }; }
             else { img.src = mediaData.url; img.classList.remove('hidden'); }
 
+            // Shelf Photo
             const shelfImg = document.getElementById('shelf-display-img');
             const shelfUrl = convertDriveLink(currentSlotData.Shelf_Photo_URL);
             shelfImg.src = shelfUrl || "https://placehold.co/600x400?text=No+Shelf+Photo";
 
-            // *** MAP HIGHLIGHT LOGIC (หัวใจสำคัญตรงนี้ครับ) ***
-            updateMapHighlight(currentSlotData.Slot_ID);
+            // *** UPDATE HIGHLIGHT LOGIC ***
+            // ใช้ Slot_Name จาก Sheet มา Map กับ ID ใน HTML
+            updateMapHighlight(currentSlotData.Slot_Name);
         }
 
         function updateMapHighlight(targetID) {
-            // 1. ล้างสีเก่าออกให้หมด
             document.querySelectorAll('.active-slot-highlight').forEach(el => {
                 el.classList.remove('active-slot-highlight');
             });
-
             if(!targetID) return;
-
-            // 2. หา Element ตาม ID (เช่น "G1L-F" หรือ "WL1")
-            // หมายเหตุ: ตัดช่องว่างออก เผื่อใน Sheet พิมพ์เกิน
             const cleanID = targetID.trim();
             const targetElement = document.getElementById(cleanID);
-
             if(targetElement) {
-                // 3. ใส่สีแดงกระพริบ
                 targetElement.classList.add('active-slot-highlight');
             } else {
-                console.warn("Map ID not found for:", cleanID);
+                console.warn("Map ID not found:", cleanID);
             }
         }
 
