@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Campaign Performance Report</title>
+    <title>LED Report</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
@@ -13,40 +13,39 @@
     <style>
         body { font-family: 'Sarabun', sans-serif; background-color: #f8fafc; }
         
-        /* --- 🟢 ปุ่มแคปซูล (แก้เป็น CSS มาตรฐาน 100%) --- */
+        /* --- FIXED BUTTON STYLE (Standard CSS) --- */
         .tab-btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
             padding: 8px 24px;       /* ความอ้วนของปุ่ม */
-            border-radius: 99px;     /* ทรงแคปซูล */
+            border-radius: 999px;    /* ทำเป็นวงรีแคปซูล */
             border: 2px solid #cbd5e1; /* สีขอบเทา */
             background-color: white;
-            color: #64748b;          /* สีตัวหนังสือเทา */
-            font-weight: 700;        /* ตัวหนา */
+            color: #64748b;          /* สีตัวหนังสือเทาเข้ม */
+            font-weight: 700;
             font-size: 14px;
             cursor: pointer;
             transition: all 0.2s ease;
-            white-space: nowrap;
-            box-shadow: 0 2px 0 #cbd5e1; /* เงาก้นปุ่ม */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            white-space: nowrap;     /* ห้ามตัดบรรทัด */
         }
         
-        /* ตอนเอาเมาส์ชี้ (Hover) */
+        /* ตอนเอาเมาส์ชี้ */
         .tab-btn:hover {
-            border-color: #10b981;   /* ขอบเขียว */
-            color: #059669;          /* ตัวหนังสือเขียว */
-            background-color: #ecfdf5;
-            transform: translateY(-2px); /* ลอยขึ้น */
-            box-shadow: 0 4px 0 #6ee7b7; /* เงาสูงขึ้น */
+            border-color: #34d399;   /* สีขอบเขียว */
+            color: #059669;          /* สีตัวหนังสือเขียว */
+            background-color: #ecfdf5; /* พื้นหลังเขียวอ่อน */
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
         /* ตอนถูกเลือก (Active) */
         .tab-btn.active {
-            background-color: #059669; /* พื้นเขียวเข้ม */
+            background-color: #059669; /* เขียวทึบ */
             border-color: #047857;
             color: white;
-            transform: translateY(0);
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); /* เงาบุ๋มลงไป */
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); /* เงาด้านในให้ดูลึก */
         }
         
         .hidden { display: none !important; }
@@ -80,12 +79,19 @@
         .slot-box {
             background-color: #64748b; border: 1px solid #475569; border-radius: 4px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 12px; color: white; font-weight: bold;
+            font-size: 12px; /* UPDATED: เพิ่มขนาดตัวหนังสือเป็น 12px */
+            color: white; font-weight: bold;
             cursor: pointer; transition: all 0.2s; z-index: 10; overflow: hidden; text-align: center;
         }
         
         .g-container { display: grid; grid-template-rows: 1fr 1fr; grid-template-columns: 1fr 1fr 1fr; gap: 2px; background-color: #e2e8f0; padding: 3px; border-radius: 4px; z-index: 10; }
-        .g-slot { background-color: #94a3b8; border-radius: 2px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: white; cursor: pointer; transition: all 0.2s; overflow: hidden; white-space: nowrap; }
+        
+        .g-slot { 
+            background-color: #94a3b8; border-radius: 2px; 
+            display: flex; align-items: center; justify-content: center; 
+            font-size: 10px; /* UPDATED: เพิ่มขนาดตัวหนังสือเป็น 10px */
+            color: white; cursor: pointer; transition: all 0.2s; overflow: hidden; white-space: nowrap; 
+        }
 
         .active-slot-highlight {
             background-color: #ef4444 !important; box-shadow: 0 0 15px #ef4444; transform: scale(1.1); z-index: 50; color: white !important; animation: pulse-red 1.5s infinite; border: 1px solid white;
@@ -96,7 +102,14 @@
             100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
         }
 
-        .cashier-box { background-color: #e2e8f0; border: 2px solid #94a3b8; border-radius: 8px; color: #475569; font-weight: bold; display: flex; align-items: center; justify-content: center; z-index: 10; font-size: 14px; }
+        .cashier-box { 
+            background-color: #e2e8f0; border: 2px solid #94a3b8; border-radius: 8px; 
+            color: #475569; font-weight: bold; 
+            display: flex; align-items: center; justify-content: center; 
+            z-index: 10; 
+            font-size: 14px; /* UPDATED: เพิ่มขนาดตัวหนังสือเป็น 14px */
+        }
+        
         .outside-box { background-color: #94a3b8; border-color: #64748b; }
         .vertical-text { writing-mode: vertical-rl; text-orientation: mixed; transform: rotate(180deg); }
         .move-up { transform: translateY(-30px); }
@@ -211,7 +224,7 @@
                             <div id="ML" class="slot-box outside-box col-start-1 row-start-1 row-span-2 w-full">ML</div>
                             <div id="MR" class="slot-box outside-box col-start-1 row-start-8 row-span-2 w-full">MR</div>
 
-                            <div class="col-start-3 col-span-7 row-start-1 flex gap-1 h-8 mt-2 z-10">
+                            <div class="col-start-3 col-span-6 row-start-1 flex gap-1 h-8 mt-2 z-10">
                                 <div id="WL1" class="slot-box flex-1">WL1</div>
                                 <div id="WL2" class="slot-box flex-1">WL2</div>
                                 <div id="WL3" class="slot-box flex-1">WL3</div>
@@ -227,7 +240,6 @@
                                 <div id="GR1-F" class="g-slot">GR1-F</div> <div id="GR1-M" class="g-slot">GR1-M</div> <div id="GR1-B" class="g-slot">GR1-B</div>
                             </div>
                             <div id="GF2" class="col-start-2 row-start-5 slot-box writing-vertical text-[8px] h-full move-up" style="background-color: #64748b; border-color: #475569;">GF2</div>
-                            
                             <div class="col-start-3 row-start-5 g-container move-up">
                                 <div id="GL2-F" class="g-slot">GL2-F</div> <div id="GL2-M" class="g-slot">GL2-M</div> <div id="GL2-B" class="g-slot">GL2-B</div>
                                 <div id="GR2-F" class="g-slot">GR2-F</div> <div id="GR2-M" class="g-slot">GR2-M</div> <div id="GR2-B" class="g-slot">GR2-B</div>
@@ -402,7 +414,7 @@
             container.innerHTML = '';
             currentSlots.forEach((item, index) => {
                 const btn = document.createElement('button');
-                btn.className = `tab-btn`; // ใช้คลาส CSS ที่แก้แล้ว
+                btn.className = `tab-btn`; 
                 btn.onclick = () => loadSlot(index);
                 btn.id = `tab-${index}`;
                 btn.innerText = item.Slot_ID || 'Unknown Slot';
