@@ -13,37 +13,35 @@
     <style>
         body { font-family: 'Sarabun', sans-serif; background-color: #f8fafc; }
         
-        /* --- FIXED BUTTON STYLE (Capsule) --- */
+        /* --- CAPSULE BUTTON STYLE --- */
         .tab-btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            padding: 8px 24px;
-            border-radius: 99px;
-            border: 2px solid #cbd5e1;
+            padding: 8px 24px;       
+            border-radius: 99px;    
+            border: 2px solid #cbd5e1; 
             background-color: white;
-            color: #64748b;
+            color: #64748b;          
             font-weight: 700;
             font-size: 14px;
             cursor: pointer;
             transition: all 0.2s ease;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            white-space: nowrap;
+            white-space: nowrap;     
         }
-        
         .tab-btn:hover {
-            border-color: #34d399;
-            color: #059669;
-            background-color: #ecfdf5;
+            border-color: #34d399;   
+            color: #059669;          
+            background-color: #ecfdf5; 
             transform: translateY(-2px);
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
-
         .tab-btn.active {
-            background-color: #059669;
+            background-color: #059669; 
             border-color: #047857;
             color: white;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); 
         }
         
         .hidden { display: none !important; }
@@ -63,18 +61,6 @@
         /* --- MAP STYLES --- */
         .store-grid {
             display: grid;
-            /* Columns: 
-               1. Outside Left (50px)
-               2. G2F Space (30px) -> WL Start Here
-               3. Zone 1 (180px)
-               4. Gap (30px) -> WR Start Here
-               5. Zone 2 (180px)
-               6. Gap (30px)
-               7. Zone 3 (180px)
-               8. Gap (30px) -> WL/WR End Here
-               9. Zone 4 (180px)
-               10. Pad (20px)
-            */
             grid-template-columns: 50px 30px 180px 30px 180px 30px 180px 30px 180px 20px;
             grid-template-rows: 40px 30px 70px 30px 70px 30px 80px 20px 40px 40px;
             gap: 2px;
@@ -120,6 +106,14 @@
         .outside-box { background-color: #94a3b8; border-color: #64748b; }
         .vertical-text { writing-mode: vertical-rl; text-orientation: mixed; transform: rotate(180deg); }
         .move-up { transform: translateY(-30px); }
+        
+        /* Entrance Label */
+        .entrance-label {
+            writing-mode: vertical-rl; text-orientation: mixed; transform: rotate(180deg);
+            display: flex; align-items: center; justify-content: center;
+            color: #94a3b8; font-weight: bold; font-size: 20px; letter-spacing: 4px; opacity: 0.6;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
@@ -161,9 +155,7 @@
                     <i class="fa-solid fa-layer-group"></i>
                     <span class="text-sm font-bold uppercase tracking-wider whitespace-nowrap">SELECT SLOT:</span>
                 </div>
-                
-                <div class="flex flex-wrap gap-3" id="tab-container">
-                    </div>
+                <div class="flex flex-wrap gap-3" id="tab-container"></div>
             </div>
 
             <div class="animate-fade-in">
@@ -229,6 +221,7 @@
                             <div class="office-bg"></div>
 
                             <div id="ML" class="slot-box outside-box col-start-1 row-start-1 row-span-2 w-full">ML</div>
+                            <div class="col-start-1 row-start-3 row-span-5 entrance-label w-full flex items-center justify-center">ENTRANCE</div>
                             <div id="MR" class="slot-box outside-box col-start-1 row-start-8 row-span-2 w-full">MR</div>
 
                             <div class="col-start-2 col-span-7 row-start-1 flex gap-1 h-8 mt-2 z-10 justify-start px-2">
@@ -288,12 +281,12 @@
                                 <div id="CS" class="slot-box w-full h-full">CS</div>
                             </div>
                             
-                            <div class="col-start-4 col-span-5 row-start-9 flex gap-1 h-8 self-end z-10 mb-1 justify-start">
-                                <div id="WR1" class="slot-box flex-1">WR1</div>
-                                <div id="WR2" class="slot-box flex-1">WR2</div>
-                                <div id="WR3" class="slot-box flex-1">WR3</div>
-                                <div id="WR4" class="slot-box flex-1">WR4</div>
-                                <div id="WR5" class="slot-box flex-1">WR5</div>
+                            <div class="col-start-4 col-span-3 row-start-9 flex gap-1 h-8 self-end z-10 mb-1 justify-start">
+                                <div id="WR1" class="slot-box w-16">WR1</div>
+                                <div id="WR2" class="slot-box w-16">WR2</div>
+                                <div id="WR3" class="slot-box w-16">WR3</div>
+                                <div id="WR4" class="slot-box w-16">WR4</div>
+                                <div id="WR5" class="slot-box w-16">WR5</div>
                             </div>
 
                             <div class="col-start-2 col-span-2 row-start-10 flex gap-2 h-8 mt-1">
