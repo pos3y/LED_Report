@@ -13,46 +13,21 @@
     <style>
         body { font-family: 'Sarabun', sans-serif; background-color: #f8fafc; }
         
-        /* --- FIXED BUTTON STYLE (Standard CSS) --- */
+        /* --- CAPSULE BUTTON STYLE --- */
         .tab-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 8px 24px;       /* ความอ้วนของปุ่ม */
-            border-radius: 999px;    /* ทำเป็นวงรีแคปซูล */
-            border: 2px solid #cbd5e1; /* สีขอบเทา */
-            background-color: white;
-            color: #64748b;          /* สีตัวหนังสือเทาเข้ม */
-            font-weight: 700;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            white-space: nowrap;     /* ห้ามตัดบรรทัด */
+            display: inline-flex; align-items: center; justify-content: center;
+            padding: 8px 24px; border-radius: 99px; border: 2px solid #cbd5e1;
+            background-color: white; color: #64748b; font-weight: 700; font-size: 14px;
+            cursor: pointer; transition: all 0.2s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            white-space: nowrap;
         }
-        
-        /* ตอนเอาเมาส์ชี้ */
-        .tab-btn:hover {
-            border-color: #34d399;   /* สีขอบเขียว */
-            color: #059669;          /* สีตัวหนังสือเขียว */
-            background-color: #ecfdf5; /* พื้นหลังเขียวอ่อน */
-            transform: translateY(-2px);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-
-        /* ตอนถูกเลือก (Active) */
-        .tab-btn.active {
-            background-color: #059669; /* เขียวทึบ */
-            border-color: #047857;
-            color: white;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); /* เงาด้านในให้ดูลึก */
-        }
+        .tab-btn:hover { border-color: #34d399; color: #059669; background-color: #ecfdf5; transform: translateY(-2px); box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .tab-btn.active { background-color: #059669; border-color: #047857; color: white; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); }
         
         .hidden { display: none !important; }
         #loading { position: fixed; inset: 0; background: white; z-index: 999; display: flex; justify-content: center; align-items: center; flex-direction: column; }
         iframe { width: 100%; height: 100%; }
 
-        /* PRINT STYLES */
         @media print {
             button, select, .no-print, #loading, #error-msg, .tab-btn:not(.active) { display: none !important; }
             .bg-gray-50 { border: none !important; background: none !important; }
@@ -62,9 +37,20 @@
             .shadow-sm, .shadow-lg { box-shadow: none !important; border: 1px solid #ddd !important; }
         }
 
-        /* --- MAP STYLES --- */
+        /* --- MAP STYLES (4-ZONE GRID FIXED) --- */
         .store-grid {
             display: grid;
+            /* Col 1: Outside Left (50px)
+               Col 2: G2F Space (30px)
+               Col 3: Zone 1 [G1/G2/Cashier] (180px)
+               Col 4: Gap (30px) -> WR Start Here
+               Col 5: Zone 2 [G3] (180px)
+               Col 6: Gap (30px)
+               Col 7: Zone 3 [G6/G8] (180px) -> WR Ends Here
+               Col 8: Gap (30px) -> WL Ends Here
+               Col 9: Zone 4 [G9] (180px)
+               Col 10: Pad (20px)
+            */
             grid-template-columns: 50px 30px 180px 30px 180px 30px 180px 30px 180px 20px;
             grid-template-rows: 40px 30px 70px 30px 70px 30px 80px 20px 40px 40px;
             gap: 2px;
@@ -84,39 +70,16 @@
         }
         
         .g-container { display: grid; grid-template-rows: 1fr 1fr; grid-template-columns: 1fr 1fr 1fr; gap: 2px; background-color: #e2e8f0; padding: 3px; border-radius: 4px; z-index: 10; }
-        
-        .g-slot { 
-            background-color: #94a3b8; border-radius: 2px; 
-            display: flex; align-items: center; justify-content: center; 
-            font-size: 10px; color: white; cursor: pointer; transition: all 0.2s; overflow: hidden; white-space: nowrap; 
-        }
+        .g-slot { background-color: #94a3b8; border-radius: 2px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: white; cursor: pointer; transition: all 0.2s; overflow: hidden; white-space: nowrap; }
 
-        .active-slot-highlight {
-            background-color: #ef4444 !important; box-shadow: 0 0 15px #ef4444; transform: scale(1.1); z-index: 50; color: white !important; animation: pulse-red 1.5s infinite; border: 1px solid white;
-        }
-        @keyframes pulse-red {
-            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-            70% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
-        }
+        .active-slot-highlight { background-color: #ef4444 !important; box-shadow: 0 0 15px #ef4444; transform: scale(1.1); z-index: 50; color: white !important; animation: pulse-red 1.5s infinite; border: 1px solid white; }
+        @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
 
-        .cashier-box { 
-            background-color: #e2e8f0; border: 2px solid #94a3b8; border-radius: 8px; 
-            color: #475569; font-weight: bold; 
-            display: flex; align-items: center; justify-content: center; 
-            z-index: 10; 
-            font-size: 14px; 
-        }
+        .cashier-box { background-color: #e2e8f0; border: 2px solid #94a3b8; border-radius: 8px; color: #475569; font-weight: bold; display: flex; align-items: center; justify-content: center; z-index: 10; font-size: 14px; }
         .outside-box { background-color: #94a3b8; border-color: #64748b; }
         .vertical-text { writing-mode: vertical-rl; text-orientation: mixed; transform: rotate(180deg); }
         .move-up { transform: translateY(-30px); }
-        
-        .entrance-label {
-            writing-mode: vertical-rl; text-orientation: mixed; transform: rotate(180deg);
-            display: flex; align-items: center; justify-content: center;
-            color: #94a3b8; font-weight: bold; font-size: 20px; letter-spacing: 4px; opacity: 0.6;
-            pointer-events: none;
-        }
+        .entrance-label { writing-mode: vertical-rl; text-orientation: mixed; transform: rotate(180deg); display: flex; align-items: center; justify-content: center; color: #94a3b8; font-weight: bold; font-size: 20px; letter-spacing: 4px; opacity: 0.6; pointer-events: none; }
     </style>
 </head>
 <body>
@@ -158,9 +121,7 @@
                     <i class="fa-solid fa-layer-group"></i>
                     <span class="text-sm font-bold uppercase tracking-wider whitespace-nowrap">SELECT SLOT:</span>
                 </div>
-                
-                <div class="flex flex-wrap gap-3" id="tab-container">
-                    </div>
+                <div class="flex flex-wrap gap-3" id="tab-container"></div>
             </div>
 
             <div class="animate-fade-in">
@@ -229,7 +190,7 @@
                             <div class="col-start-1 row-start-3 row-span-5 entrance-label w-full flex items-center justify-center">ENTRANCE</div>
                             <div id="MR" class="slot-box outside-box col-start-1 row-start-8 row-span-2 w-full">MR</div>
 
-                            <div class="col-start-2 col-span-7 row-start-1 flex gap-1 h-8 mt-2 z-10 justify-start px-2">
+                            <div class="col-start-3 col-span-6 row-start-1 flex gap-1 h-8 mt-2 z-10 justify-start">
                                 <div id="WL1" class="slot-box flex-1">WL1</div>
                                 <div id="WL2" class="slot-box flex-1">WL2</div>
                                 <div id="WL3" class="slot-box flex-1">WL3</div>
@@ -286,12 +247,12 @@
                                 <div id="CS" class="slot-box w-full h-full">CS</div>
                             </div>
                             
-                            <div class="col-start-4 col-span-3 row-start-9 flex gap-1 h-8 self-end z-10 mb-1 justify-start">
-                                <div id="WR1" class="slot-box w-16">WR1</div>
-                                <div id="WR2" class="slot-box w-16">WR2</div>
-                                <div id="WR3" class="slot-box w-16">WR3</div>
-                                <div id="WR4" class="slot-box w-16">WR4</div>
-                                <div id="WR5" class="slot-box w-16">WR5</div>
+                            <div class="col-start-4 col-span-4 row-start-9 flex gap-1 h-8 self-end z-10 mb-1 justify-start">
+                                <div id="WR1" class="slot-box flex-1">WR1</div>
+                                <div id="WR2" class="slot-box flex-1">WR2</div>
+                                <div id="WR3" class="slot-box flex-1">WR3</div>
+                                <div id="WR4" class="slot-box flex-1">WR4</div>
+                                <div id="WR5" class="slot-box flex-1">WR5</div>
                             </div>
 
                             <div class="col-start-2 col-span-2 row-start-10 flex gap-2 h-8 mt-1">
